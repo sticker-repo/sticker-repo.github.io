@@ -1,0 +1,19 @@
+{
+  "name": "sticker-repo-matrix-worker",
+  "version": "1.0.0",
+  "description": "Matrix media federation worker for sticker-repo",
+  "main": "src/worker.ts",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/worker.ts --bundle --minify --outfile=dist/worker.js --platform=browser --format=iife",
+    "dev": "wrangler dev",
+    "deploy": "wrangler publish"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240605.0",
+    "esbuild": "^0.21.0",
+    "typescript": "^5.4.0",
+    "wrangler": "^3.40.0"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,23 @@
+name = "sticker-repo-matrix-worker"
+type = "javascript"
+account_id = "YOUR_ACCOUNT_ID"
+workers_dev = true
+route = ""
+zone_id = ""
+
+# Ensure the worker runs on your custom domain
+[env.production]
+vars = { GITHUB_PAGES_URL = "https://sticker-repo.github.io" }
+
+[build]
+command = "npm run build"
+cwd = "./"
+main = "dist/worker.js"
+
+[build.upload]
+format = "service-worker"
+
+[[build.upload.rules]]
+type = "CompiledContentType"
+globs = ["**/*.wasm"]
+fallthrough = true
