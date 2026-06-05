@@ -56,6 +56,38 @@ export default {
     const url = new URL(request.url);
     const pathname = url.pathname;
 
+    // Handle Matrix well-known server discovery
+    if (pathname === '/.well-known/matrix/server') {
+      return new Response(
+        JSON.stringify({
+          'm.server': 'sticker-repo-matrix-worker.dev72591.workers.dev:443',
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+        }
+      );
+    }
+
+    // Handle Matrix client well-known discovery
+    if (pathname === '/.well-known/matrix/client') {
+      return new Response(
+        JSON.stringify({
+          'm.homeserver': {
+            'base_url': 'https://sticker-repo-matrix-worker.dev72591.workers.dev',
+          },
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+        }
+      );
+    }
+
     // Handle Matrix media download endpoint
     // Pattern: /_matrix/media/v3/download/{serverName}/{mediaId}
     const downloadMatch = pathname.match(/^\/_matrix\/media\/v3\/download\/([^\/]+)\/(.+)$/);
