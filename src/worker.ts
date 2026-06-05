@@ -2,39 +2,37 @@
  * Matrix Media Federation Worker
  * 
  * This Cloudflare Worker acts as a Matrix homeserver media endpoint,
- * proxying media from GitHub Pages while providing proper Matrix federation headers.
+ * proxying media from the files directory on GitHub Pages.
  * 
- * Deploy to: sticker-repo.dev72591.workers.dev (or your custom domain)
+ * Deploy to: sticker-repo-matrix-worker.dev72591.workers.dev
  * 
  * Matrix clients will use URLs like:
- * mxc://sticker-repo.dev72591.workers.dev/github
+ * mxc://sticker-repo-matrix-worker.dev72591.workers.dev/github
  */
 
 interface Env {
-  // Environment variables can be added here if needed
   GITHUB_PAGES_URL?: string;
 }
 
 /**
  * Media cache storage
- * In production, you'd want to use Cloudflare KV storage or Workers Analytics Engine
  */
 const MEDIA_CACHE = new Map<string, { data: ArrayBuffer; mimeType: string; timestamp: number }>();
 const CACHE_TTL = 86400000; // 24 hours in milliseconds
 
 /**
- * Get media from GitHub Pages
+ * Get media from GitHub Pages files directory
  */
 async function fetchMediaFromGithub(mediaId: string): Promise<Response | null> {
   try {
-    // Map media IDs to file paths
+    // Simple media mapping from mediaId to filename
     const mediaMap: Record<string, string> = {
       'github': 'github.png',
       'github.png': 'github.png',
     };
 
     const fileName = mediaMap[mediaId] || mediaId;
-    const githubUrl = `https://sticker-repo.github.io/_matrix/media/v3/download/sticker-repo.github.io/${fileName}`;
+    const githubUrl = `https://sticker-repo.github.io/files/${fileName}`;
 
     const response = await fetch(githubUrl);
     
@@ -65,9 +63,8 @@ export default {
     if (downloadMatch && request.method === 'GET') {
       const [, serverName, mediaId] = downloadMatch;
 
-      // Only serve media for this homeserver or GitHub Pages domain
-      if (serverName !== 'sticker-repo.dev72591.workers.dev' && 
-          serverName !== 'sticker-repo.github.io') {
+      // Only serve media for this homeserver
+      if (serverName !== 'sticker-repo-matrix-worker.dev72591.workers.dev') {
         return new Response(
           JSON.stringify({
             errcode: 'M_NOT_FOUND',
@@ -85,7 +82,7 @@ export default {
       }
 
       // Check cache first
-      const cacheKey = `${serverName}/${mediaId}`;
+      const cacheKey = `${mediaId}`;
       const cached = MEDIA_CACHE.get(cacheKey);
       
       if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -176,8 +173,8 @@ export default {
         JSON.stringify({
           name: 'Matrix Media Server',
           version: '1.0.0',
-          server_name: 'sticker-repo.dev72591.workers.dev',
-          description: 'Matrix media federation endpoint for sticker-repo.github.io',
+          server_name: 'sticker-repo-matrix-worker.dev72591.workers.dev',
+          description: 'Matrix media federation endpoint for sticker-repo',
           endpoints: {
             download: '/_matrix/media/v3/download/{serverName}/{mediaId}',
             config: '/_matrix/media/v3/config',
