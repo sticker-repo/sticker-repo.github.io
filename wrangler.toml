@@ -1,14 +1,14 @@
 name = "sticker-repo-matrix-worker"
 type = "javascript"
-account_id = "${CLOUDFLARE_ACCOUNT_ID}"
 workers_dev = true
 route = ""
 zone_id = ""
 compatibility_date = "2026-06-05"
 main = "src/worker.ts"
 
-# Ensure the worker runs on your custom domain
+# Production environment with account ID from env var
 [env.production]
+account_id = "${CLOUDFLARE_ACCOUNT_ID}"
 vars = { GITHUB_PAGES_URL = "https://sticker-repo.github.io" }
 
 [build]
