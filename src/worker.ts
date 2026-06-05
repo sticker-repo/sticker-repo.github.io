@@ -60,7 +60,7 @@ export default {
 
     // Handle Matrix media download endpoint
     // Pattern: /_matrix/media/v3/download/{serverName}/{mediaId}
-    const downloadMatch = pathname.match(/^\/_.matrix\/media\/v3\/download\/([^\/]+)\/(.+)$/);
+    const downloadMatch = pathname.match(/^\/_matrix\/media\/v3\/download\/([^\/]+)\/(.+)$/);
     
     if (downloadMatch && request.method === 'GET') {
       const [, serverName, mediaId] = downloadMatch;
