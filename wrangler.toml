@@ -1,6 +1,6 @@
 name = "sticker-repo-matrix-worker"
 type = "javascript"
-account_id = "YOUR_ACCOUNT_ID"
+account_id = "${CLOUDFLARE_ACCOUNT_ID}"
 workers_dev = true
 route = ""
 zone_id = ""
