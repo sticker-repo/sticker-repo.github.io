@@ -49,7 +49,7 @@ m.room.message
   "images": {
     "rabbit": {
       "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/rabbit4webp",
-      "body": "rabbit4",
+      "body": "rabbit4"
     }
   },
   "pack": {
