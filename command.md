@@ -58,3 +58,29 @@ m.room.message
   }
 }
 ```
+```
+{
+  "images": {
+    "tgs": {
+      "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/animtgs",
+      "body": "tgs"
+    },
+    "dottgs": {
+      "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/anim.tgs",
+      "body": "dottgs"
+    },
+    "webm": {
+      "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/animwebm",
+      "body": "webm"
+    },
+    "dotwebm": {
+      "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/anim.webm",
+      "body": "dotwebm"
+    },
+  },
+  "pack": {
+    "display_name": "video",
+    "usage": ["sticker", "emoticon"]
+  }
+}
+```
