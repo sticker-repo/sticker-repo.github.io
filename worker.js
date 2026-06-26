@@ -17,7 +17,17 @@ async function getFileBytes(mediaId) {
   if (!res.ok) throw new Error(`failed to fetch file: ${res.status}`);
 
   const bytes = new Uint8Array(await res.arrayBuffer());
-  const contentType = res.headers.get("content-type") || "application/octet-stream";
+
+  // const contentType = res.headers.get("content-type") || "application/octet-stream";
+  const headerType = res.headers.get("content-type");
+  const name = mediaId.split("?")[0].toLowerCase();
+  const inferredType =
+    name.endsWith("png") ? "image/png" :
+    name.endsWith("jpg") || name.endsWith("jpeg") ? "image/jpeg" :
+    name.endsWith("webp") ? "image/webp" :
+    name.endsWith("gif") ? "image/gif" :
+    "application/octet-stream";
+  const contentType = headerType || inferredType;
 
   const value = { bytes, contentType, size: bytes.byteLength };
   PNG_CACHE.set(mediaId, value);

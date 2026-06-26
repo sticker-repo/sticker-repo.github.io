@@ -44,3 +44,27 @@ m.room.message
   }
 }
 ```
+```
+{
+  "images": {
+    "rabbit": {
+      "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/rabbitwebp",
+      "body": "rabbit",
+      "info": {
+        "mimetype": "image/webp"
+      }
+    },
+    "rabbitdot": {
+      "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/rabbit.webp",
+      "body": "rabbitdot",
+      "info": {
+        "mimetype": "image/webp"
+      }
+    }
+  },
+  "pack": {
+    "display_name": "Rabbit",
+    "usage": ["sticker", "emoticon"]
+  }
+}
+```
