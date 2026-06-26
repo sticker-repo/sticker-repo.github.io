@@ -63,20 +63,32 @@ m.room.message
   "images": {
     "tgs": {
       "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/animtgs",
-      "body": "tgs"
+      "body": "tgs",
+      "info": {
+        "mimetype": "video/tgs"
+      }
     },
     "dottgs": {
       "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/anim.tgs",
-      "body": "dottgs"
+      "body": "dottgs",
+      "info": {
+        "mimetype": "video/tgs"
+      }
     },
     "webm": {
       "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/animwebm",
-      "body": "webm"
+      "body": "webm",
+      "info": {
+        "mimetype": "video/webm"
+      }
     },
     "dotwebm": {
       "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/anim.webm",
-      "body": "dotwebm"
-    },
+      "body": "dotwebm",
+      "info": {
+        "mimetype": "video/webm"
+      }
+    }
   },
   "pack": {
     "display_name": "video",
