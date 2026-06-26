@@ -94,13 +94,26 @@ export default {
       return federationMultipartResponse(file);
     }
 
-    const mediaMatch = path.match(
-      new RegExp(`^/_matrix/(?:media/v3|media/r0|client/v1)/download/${SERVER_NAME}/([^/]+)(?:/[^/]+)?$`)
+    const downloadMatch = path.match(
+      new RegExp(
+        `^/(?:_matrix/client/v1/media/download|_matrix/media/v3/download|_matrix/media/r0/download)/${SERVER_NAME}/([^/]+)(?:/[^/]+)?$`
+      )
     );
-    if (mediaMatch) {
-      const mediaId = mediaMatch[1];
+    if (downloadMatch) {
+      const mediaId = downloadMatch[1];
       const file = await getFileBytes(mediaId);
       return rawMediaResponse(file);
+    }
+
+    const thumbMatch = path.match(
+      new RegExp(
+        `^/(?:_matrix/client/v1/media/thumbnail|_matrix/media/v3/thumbnail|_matrix/media/r0/thumbnail)/${SERVER_NAME}/([^/]+)(?:/[^/]+)?$`
+      )
+    );
+    if (thumbMatch) {
+      const mediaId = thumbMatch[1];
+      const file = await getFileBytes(mediaId);
+      return rawMediaResponse(file);  // TODO: this is the same image, no resizing
     }
 
     return new Response("Not found", { status: 404 });
