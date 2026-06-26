@@ -40,7 +40,7 @@ m.room.message
   },
   "pack": {
     "display_name": "Romantic Goose",
-    "usage": ["sticker"]
+    "usage": ["sticker", "emoticon"]
   }
 }
 ```
