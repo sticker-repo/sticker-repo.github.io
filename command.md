@@ -48,22 +48,12 @@ m.room.message
 {
   "images": {
     "rabbit": {
-      "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/rabbitwebp",
-      "body": "rabbit",
-      "info": {
-        "mimetype": "image/webp"
-      }
-    },
-    "rabbitdot": {
-      "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/rabbit.webp",
-      "body": "rabbitdot",
-      "info": {
-        "mimetype": "image/webp"
-      }
+      "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/rabbit4webp",
+      "body": "rabbit4",
     }
   },
   "pack": {
-    "display_name": "Rabbit",
+    "display_name": "Rabbit4",
     "usage": ["sticker", "emoticon"]
   }
 }
