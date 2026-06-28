@@ -1,6 +1,6 @@
 <template>
   <div class="header-2">animated stickers</div>
-  <StickerGrid :cards="tgsCards" size="small" />
+  <StickerGrid :cards="animatedCards" size="small" />
   <div class="header-2">static stickers</div>
   <StickerGrid :cards="staticCards" size="small" />
 </template>
@@ -21,7 +21,10 @@ export default {
   },
   computed: {
     staticCards() {
-      return [...this.webpCards, ...this.webmCards]
+      return [...this.webpCards]
+    },
+    animatedCards() {
+      return [...this.tgsCards, ...this.webmCards]
     },
   },
   async created() {
