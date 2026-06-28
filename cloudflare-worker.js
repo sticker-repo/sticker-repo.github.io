@@ -13,21 +13,41 @@ function json(obj, status = 200) {
 async function getFileBytes(mediaId) {
   if (CACHE.has(mediaId)) return CACHE.get(mediaId);
 
-  const res = await fetch(`https://sticker-repo.github.io/files/${mediaId}`);
+  const mediaIdParts = mediaId.split("-");
+  if (mediaIdParts.length !== 4) {
+    return { bytes: new Uint8Array(), contentType: undefined, size: 0 };
+  }
+  const [repoName, packId, fileId, ext] = mediaIdParts;
+
+  const res = await fetch(`https://sticker-repo.github.io/${repoName}/files/${packId}/${fileId}.${ext}`);
   if (!res.ok) throw new Error(`failed to fetch file: ${res.status}`);
 
   const bytes = new Uint8Array(await res.arrayBuffer());
 
-  let contentType = res.headers.get("content-type") || "application/octet-stream";
-  if (contentType === "application/octet-stream") {
-    const name = mediaId.toLowerCase();
-    const inferredType =
-      name.endsWith("png") ? "image/png" :
-      name.endsWith("jpg") || name.endsWith("jpeg") ? "image/jpeg" :
-      name.endsWith("webp") ? "image/webp" :
-      name.endsWith("gif") ? "image/gif" :
-      "application/octet-stream";
-    contentType = inferredType;
+  let contentType;
+  switch (ext.toLowerCase()) {
+    case "png":
+      contentType = "image/png";
+      break;
+    case "jpg":
+    case "jpeg":
+      contentType = "image/jpeg";
+      break;
+    case "webp":
+      contentType = "image/webp";
+      break;
+    case "webm":
+      contentType = "video/webm";
+      break;
+    case "gif":
+      contentType = "image/gif";
+      break;
+    case "tgs":
+      contentType = "video/tgs";
+      break;
+    default:
+      contentType = res.headers.get("content-type") || "application/octet-stream";
+      break;
   }
 
   const value = { bytes, contentType, size: bytes.byteLength };
