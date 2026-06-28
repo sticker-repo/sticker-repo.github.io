@@ -91,7 +91,7 @@ export default {
       } else {
         this.stickers.push(s)
         matrixEvent.images[String(i)] = {
-          url: `mxc://worker.sticker-repo.workers.dev/s1-${data.name}-${sticker.file_unique_id}-${sticker.extension}`,
+          url: `mxc://mtx.sticker-repo.workers.dev/s1-${data.name}-${sticker.file_unique_id}-${sticker.extension}`,
           body: sticker.emoji,
         }
         const mimetype = extToMimetype(sticker.extension)
