@@ -72,8 +72,12 @@ body {
     background-color: #6e9b41;
 }
 
-.add-btn {
+.add-btn.telegram {
     background-color: #24a1de;
+}
+
+.add-btn.matrix {
+    background-color: #606060;
 }
 
 .back-btn {
@@ -108,3 +112,25 @@ body {
 .thumbnail:nth-child(even) {
     background-color: #f1f1f1;
 }
+
+.popup-container {
+    z-index: 100;
+    background-color: rgba(55, 55, 55, 0.853);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+    grid-template-columns: min(100em, 0.5fr);
+
+    .popup {
+        width: calc(min(100em, 50%));
+        background-color: white;
+    }
+}
+
