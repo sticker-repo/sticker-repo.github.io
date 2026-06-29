@@ -1,8 +1,9 @@
 <template>
-  <div class="header-2">animated stickers</div>
-  <StickerGrid :cards="animatedCards" size="small" />
-  <div class="header-2">static stickers</div>
-  <StickerGrid :cards="staticCards" size="small" />
+  <!-- top-16 is from the navbar height -->
+  <h2 class="text-2xl font-bold my-4 shadow-sm sticky top-16 z-20 bg-base-100"  >animated sticker packs</h2>
+  <StickerGrid :cards="animatedCards" size="small" class="scroll-mt-28" id="animated-packs" />
+  <h2 class="text-2xl font-bold my-4 shadow-sm sticky top-16 z-20 bg-base-100" >static sticker packs</h2>
+  <StickerGrid :cards="staticCards" size="small" class="scroll-mt-28" id="static-packs" />
 </template>
 
 <script>

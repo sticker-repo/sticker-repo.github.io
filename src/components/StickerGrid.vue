@@ -1,37 +1,33 @@
 <template>
-  <div class="thumbnail-container">
+  <div class="flex flex-wrap items-center justify-start gap-2">
     <template v-for="card in cards" :key="card.key || card.id || card.src">
-      <tgs-player
-        v-if="card.extension === 'tgs'"
-        class="thumbnail"
-        :class="thumbnailClass(card)"
-        loop
-        hover
-        mode="normal"
-        :src="card.src"
-        @click="onClick(card)"
-      ></tgs-player>
+        <div :class="['rounded-xl overflow-hidden shadow-lg', card.route ? 'cursor-pointer hover:shadow-lg' : '']" @click="onClick(card)">
+          <tgs-player
+            v-if="card.extension === 'tgs'"
+            :class="thumbnailClass(card)"
+            loop
+            hover
+            mode="normal"
+            :src="card.src"
+          ></tgs-player>
 
-      <video
-        v-else-if="card.extension === 'webm'"
-        class="thumbnail"
-        :class="thumbnailClass(card)"
-        :src="card.src"
-        muted
-        loop
-        playsinline
-        @click="onClick(card)"
-        @mouseenter="playCard($event)"
-        @mouseleave="pauseCard($event)"
-      ></video>
+          <video
+            v-else-if="card.extension === 'webm'"
+            :class="thumbnailClass(card)"
+            :src="card.src"
+            muted
+            loop
+            playsinline
+            @mouseenter="playCard($event)"
+            @mouseleave="pauseCard($event)"
+          ></video>
 
-      <img
-        v-else
-        class="thumbnail"
-        :class="thumbnailClass(card)"
-        :src="card.src"
-        @click="onClick(card)"
-      />
+          <img
+            v-else
+            :class="thumbnailClass(card)"
+            :src="card.src"
+          />
+      </div>
     </template>
   </div>
 </template>
@@ -45,7 +41,10 @@ export default {
   },
   methods: {
     thumbnailClass(card) {
-      return [this.size === 'large' ? 'large' : 'small', { clickable: card.route }]
+      const sizeCls = this.size === 'large' ? 'w-32 h-32' : 'w-16 h-16'
+      const common = 'object-contain rounded-lg p-1'
+      const clickable = card.route ? 'cursor-pointer' : ''
+      return [sizeCls, common, clickable].join(' ')
     },
     onClick(card) {
       if (card.route) {
