@@ -1,10 +1,10 @@
 <template>
   <div v-if="animatedCards.length > 0">
-    <h2 class="text-2xl font-bold my-4">animated stickers</h2>
+    <h2 class="text-2xl font-bold my-4">animated sticker packs</h2>
     <StickerGrid :cards="animatedCards" size="small" />
   </div>
   <div v-if="staticCards.length > 0">
-    <h2 class="text-2xl font-bold my-4">static stickers</h2>
+    <h2 class="text-2xl font-bold my-4">static sticker packs</h2>
     <StickerGrid :cards="staticCards" size="small" />
   </div>
 </template>

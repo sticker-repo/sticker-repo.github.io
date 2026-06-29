@@ -31,33 +31,75 @@ const openMatrixModal = () => {
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
       </form>
       <h3 class="text-lg font-bold">Add this pack to a Matrix room</h3>
-      <div role="alert" class="alert alert-warning mt-4" v-if="isThumbnailAnimated">
+      <div role="alert" class="alert alert-warning mt-4" v-if="thumbnailExtension !== 'webp'">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
         <span>Your matrix client may not support animated sticker packs!</span>
       </div>
-      <!-- 1. using a public room that has stickers -->
-      <!-- curl -->
-      <!-- using element -->
-      <!-- find this pack in room -->
-      <p class="mt-4 mb-4">Use one if these approaches to send the <code class="bg-base-200 px-1 py-0.5 rounded text-xs">room state</code> event:</p>
+      <p class="mt-4 mb-4">Use one if these approaches:</p>
       <div class="flex flex-col gap-2">
-        <button class="btn btn-primary w-full justify-start capitalize">use curl (HTTP client)
-          <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button class="btn btn-primary w-full justify-start capitalize" v-on:click="isCurlOpen = !isCurlOpen">use curl (HTTP client)
+          <svg class="w-5 h-5 ml-auto" :class="isCurlOpen ? '-rotate-90' : 'rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
-        <button class="btn btn-primary w-full justify-start capitalize">use element 
-          <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div v-if="isCurlOpen" class="card card-border bg-base-300">
+          <div class="card-body">
+            <ol class="list-decimal list-inside space-y-2 ml-2">
+              <li>Get auth token:
+<pre class="overflow-auto bg-base-200 rounded ml-4"><code>curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+      "type": "m.login.password",
+      "user": "YOUR_USERNAME",
+      "password": "YOUR_PASSWORD"
+  }' "http://account.matrix.org/_matrix/client/v3/login"
+</code></pre>
+              </li>
+              <li>Send the room state event:
+<pre class="overflow-auto bg-base-200 rounded ml-4"><code>curl -X PUT \
+  'https://matrix.org/_matrix/client/v3/rooms/YOUR_ROOM_ID/state/im.ponies.room_emotes/{{ name }}' \
+  -H "Authorization: Bearer YOUR_AUTH_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{{ matrixEvent }}'
+</code></pre>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <button class="btn btn-primary w-full justify-start capitalize" v-on:click="isElementOpen = !isElementOpen">use element web / desktop
+          <svg class="w-5 h-5 ml-auto" :class="isElementOpen ? '-rotate-90' : 'rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
-        <button v-if="!isThumbnailAnimated" class="btn btn-secondary w-full justify-start normal-case mt-2">Or, find the <code class="px-1 py-0.5 rounded text-xs">{{ name }}</code> pack in our public room 
+        <div v-if="isElementOpen" class="card card-border bg-base-300">
+          <div class="card-body">
+            <ol class="list-decimal list-inside space-y-2 ml-2">
+              <li>In your room type <code class="bg-base-200 px-2 py-1 rounded text-sm">/devtools</code></li>
+              <li>Click <code class="bg-base-200 px-2 py-1 rounded text-sm">Explore room state</code></li>
+              <li>Click <code class="bg-base-200 px-2 py-1 rounded text-sm">Send custom state event</code></li>
+              <li>Enter the following data:
+<pre class="overflow-auto bg-base-200 rounded ml-4"><code>Event Type: im.ponies.room_emotes
+State Key: {{ name }}
+Event Content:
+{{ matrixEvent }}
+</code></pre>
+              </li>
+              <li>Click <code class="bg-base-200 px-2 py-1 rounded text-sm">Send</code></li>
+            </ol>
+            <p class="mt-4 mb-2">Here we used Element to add the sticker pack. However, Element doesn’t support using stickers, and we should use clients like <code class="bg-base-200 px-2 py-1 rounded text-sm">FluffyChat</code> afterward.</p>
+          </div>
+        </div>
+
+        <a v-if="thumbnailExtension === 'webp'" 
+        href="https://matrix.to/#/#sticker-repo-webp:matrix.org" target="_blank" rel="noopener noreferrer"
+        class="btn btn-secondary w-full justify-start normal-case mt-2">Or, find the <code class="px-1 py-0.5 rounded text-xs">{{ name }}</code> pack in our public room 
           <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
-        </button>
+        </a>
       </div>
       <div class="divider"></div>
       <p class="mt-4 mb-2">Then, to use the sticker pack globally:</p>
@@ -107,9 +149,11 @@ export default {
       link: '',
       typeName: '',
       matrixEvent: '',
-      isThumbnailAnimated: false,
+      thumbnailExtension: '',
       stickers: [],
       premium_stickers: [],
+      isCurlOpen: false,
+      isElementOpen: false,
     }
   },
   async created() {
@@ -119,7 +163,7 @@ export default {
     if (!data) return
     this.title = data.title
     this.name = data.name
-    this.isThumbnailAnimated = String(extToMimetype(data.thumbnail_extension)).includes('video')
+    this.thumbnailExtension = data.thumbnail_extension
     if (data.sticker_type === 'regular') {
       this.link = `https://t.me/addstickers/${data.name}`
       this.typeName = 'stickers'
