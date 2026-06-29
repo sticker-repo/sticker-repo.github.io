@@ -4,14 +4,23 @@
 
 body {
     // background-color: #fffdf6;
-    min-height: calc(100vh - 1em);
-    margin: 0.5em;
+    min-height: 100vh;
+    // margin: 0.5em;
 }
 
 #app {
-    min-height: calc(100vh - 1em);
+    min-height: 100vh;
     display: grid;
     grid-template-rows: auto 1fr auto;
+}
+
+main {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 /* Keep minimal global media rules for sticker media elements */

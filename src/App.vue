@@ -1,9 +1,13 @@
 <script setup></script>
 
 <template>
-  <div class="navbar bg-base-200">
+  <div class="navbar bg-base-200 shadow-sm sticky top-0 z-50">
     <div class="flex-1">
       <a class="btn btn-ghost text-xl capitalize" href="/" >sticker repo</a>
+      <template v-if="$route.path === '/'">
+        <a class="btn btn-ghost capitalize" href="/#animated-packs" >animated packs</a>
+        <a class="btn btn-ghost capitalize" href="/#static-packs" >static packs</a>
+      </template>
     </div>
     <div class="flex-none">
       <a v-if="$route.path === '/'" v-on:click="$router.push(`/search`)" class="btn btn-secondary mr-2 capitalize">search with emoji</a>
