@@ -43,17 +43,17 @@ const openMatrixModal = () => {
       <!-- find this pack in room -->
       <p class="mt-4 mb-4">Use one if these approaches to send the <code class="bg-base-200 px-1 py-0.5 rounded text-xs">room state</code> event:</p>
       <div class="flex flex-col gap-2">
-        <button class="btn btn-soft btn-primary w-full justify-start capitalize">use curl (HTTP client)
+        <button class="btn btn-primary w-full justify-start capitalize">use curl (HTTP client)
           <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
-        <button class="btn btn-soft btn-primary w-full justify-start capitalize">use element 
+        <button class="btn btn-primary w-full justify-start capitalize">use element 
           <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
-        <button v-if="!isThumbnailAnimated" class="btn btn-soft btn-secondary w-full justify-start normal-case mt-2">Or, find the <code class="px-1 py-0.5 rounded text-xs">{{ name }}</code> pack in our public room 
+        <button v-if="!isThumbnailAnimated" class="btn btn-secondary w-full justify-start normal-case mt-2">Or, find the <code class="px-1 py-0.5 rounded text-xs">{{ name }}</code> pack in our public room 
           <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
