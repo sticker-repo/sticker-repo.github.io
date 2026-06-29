@@ -31,7 +31,7 @@ const openMatrixModal = () => {
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
       </form>
       <h3 class="text-lg font-bold">Add this pack to a Matrix room</h3>
-      <div role="alert" class="alert alert-warning mt-4" v-if="String(extToMimetype(thumbnailExtension)).includes('video')">
+      <div role="alert" class="alert alert-warning mt-4" v-if="isThumbnailAnimated">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
@@ -41,9 +41,9 @@ const openMatrixModal = () => {
       <!-- curl -->
       <!-- using element -->
       <!-- find this pack in room -->
-      <p class="mt-4 mb-2">Use one if these approaches to send the <code class="bg-base-200 px-1 py-0.5 rounded text-xs">room state</code> event:</p>
+      <p class="mt-4 mb-4">Use one if these approaches to send the <code class="bg-base-200 px-1 py-0.5 rounded text-xs">room state</code> event:</p>
       <div class="flex flex-col gap-2">
-        <button class="btn btn-soft btn-primary w-full justify-start capitalize">use curl 
+        <button class="btn btn-soft btn-primary w-full justify-start capitalize">use curl (HTTP client)
           <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
@@ -53,21 +53,21 @@ const openMatrixModal = () => {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
-        <button class="btn btn-soft btn-secondary w-full justify-start normal-case">Or, find the <code class="px-1 py-0.5 rounded text-xs">{{ name }}</code> pack in our public room 
+        <button v-if="!isThumbnailAnimated" class="btn btn-soft btn-secondary w-full justify-start normal-case mt-2">Or, find the <code class="px-1 py-0.5 rounded text-xs">{{ name }}</code> pack in our public room 
           <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
       </div>
       <div class="divider"></div>
-        <p class="mt-4 mb-2">Then, to use the sticker pack globally:</p>
-        <ol class="list-decimal list-inside space-y-2 ml-2">
-          <li>Open <code class="bg-base-200 px-2 py-1 rounded text-sm">FluffyChat</code> and go to the room with sticker packs you want to add.</li>
-          <li>Tap on the three dot menu top right and tap on <code class="bg-base-200 px-2 py-1 rounded text-sm">Emote Settings</code>.</li>
-          <li>Select the sticker pack.</li>
-          <li>Toggle <code class="bg-base-200 px-2 py-1 rounded text-sm">Enable emote pack globally</code>.</li>
-        </ol>
-      </div>
+      <p class="mt-4 mb-2">Then, to use the sticker pack globally:</p>
+      <ol class="list-decimal list-inside space-y-2 ml-2">
+        <li>Open <code class="bg-base-200 px-2 py-1 rounded text-sm">FluffyChat</code> and go to the room with sticker packs you want to add.</li>
+        <li>Tap on the three dot menu top right and tap on <code class="bg-base-200 px-2 py-1 rounded text-sm">Emote Settings</code>.</li>
+        <li>Select the sticker pack.</li>
+        <li>Toggle <code class="bg-base-200 px-2 py-1 rounded text-sm">Enable emote pack globally</code>.</li>
+      </ol>
+    </div>
     <form method="dialog" class="modal-backdrop">
       <button>close</button>
     </form>
@@ -107,7 +107,7 @@ export default {
       link: '',
       typeName: '',
       matrixEvent: '',
-      thumbnailExtension: [],
+      isThumbnailAnimated: false,
       stickers: [],
       premium_stickers: [],
     }
@@ -119,7 +119,7 @@ export default {
     if (!data) return
     this.title = data.title
     this.name = data.name
-    this.thumbnailExtension = data.thumbnail_extension
+    this.isThumbnailAnimated = String(extToMimetype(data.thumbnail_extension)).includes('video')
     if (data.sticker_type === 'regular') {
       this.link = `https://t.me/addstickers/${data.name}`
       this.typeName = 'stickers'
