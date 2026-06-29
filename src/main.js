@@ -10,13 +10,13 @@ app.use(router)
 app.use(TGSPlayer);
 
 // Sync DaisyUI `data-theme` with system light/dark preference
-const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-if (window.matchMedia) {
-	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-		document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
-	});
-}
+// const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+// document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+// if (window.matchMedia) {
+// 	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+// 		document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+// 	});
+// }
 
 app.mount('#app')
 

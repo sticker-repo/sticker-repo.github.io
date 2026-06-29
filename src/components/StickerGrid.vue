@@ -1,8 +1,7 @@
 <template>
-  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+  <div class="flex flex-wrap items-center justify-start gap-2">
     <template v-for="card in cards" :key="card.key || card.id || card.src">
-      <div :class="['flex items-center justify-center', size === 'large' ? 'p-2' : 'p-1']">
-        <div :class="['rounded-xl overflow-hidden bg-base-100 shadow', card.route ? 'cursor-pointer hover:shadow-lg' : '']" @click="onClick(card)">
+        <div :class="['rounded-xl overflow-hidden shadow-lg', card.route ? 'cursor-pointer hover:shadow-lg' : '']" @click="onClick(card)">
           <tgs-player
             v-if="card.extension === 'tgs'"
             :class="thumbnailClass(card)"
@@ -28,7 +27,6 @@
             :class="thumbnailClass(card)"
             :src="card.src"
           />
-        </div>
       </div>
     </template>
   </div>

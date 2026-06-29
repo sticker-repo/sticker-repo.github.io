@@ -3,7 +3,7 @@
 <template>
   <div class="navbar bg-base-200">
     <div class="flex-1">
-      <a class="btn btn-ghost normal-case text-xl">sticker repo</a>
+      <a class="btn btn-ghost normal-case text-xl" href="/" >sticker repo</a>
     </div>
     <div class="flex-none">
       <a v-if="$route.path === '/'" v-on:click="$router.push(`/search`)" class="btn btn-primary mr-2">search with emoji</a>
