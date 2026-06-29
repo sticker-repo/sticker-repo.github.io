@@ -1,11 +1,11 @@
 <script setup></script>
 
 <template>
-  <div class="flex items-center justify-between my-4">
-    <h2 class="text-2xl font-bold">{{ title }}</h2>
-    <div class="btn-group">
-      <a class="btn btn-info" :href="link">add to telegram</a>
-      <button class="btn btn-outline" v-on:click="isMatrixPopupOpen = true">add to matrix</button>
+  <div class="flex flex-col gap-4 my-4 sm:flex-row sm:items-center sm:justify-between">
+    <h2 class="text-2xl font-bold break-words">{{ title }}</h2>
+    <div class="flex flex-wrap gap-2 sm:justify-center"> 
+      <button class="btn btn-soft btn-neutral capitalize" v-on:click="isMatrixPopupOpen = true">add to matrix</button>
+      <a class="btn btn-soft btn-primary capitalize" :href="link" target="_blank" rel="noopener noreferrer">add to telegram</a>
     </div>
   </div>
   <StickerGrid :cards="stickers" size="large" />
