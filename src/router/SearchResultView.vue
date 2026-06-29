@@ -1,8 +1,12 @@
 <template>
-  <div v-if="animatedCards.length > 0" class="header-2">animated stickers</div>
-  <StickerGrid :cards="animatedCards" size="small" />
-  <div v-if="staticCards.length > 0" class="header-2">static stickers</div>
-  <StickerGrid :cards="staticCards" size="small" />
+  <div v-if="animatedCards.length > 0">
+    <h2 class="text-2xl font-bold my-4">animated stickers</h2>
+    <StickerGrid :cards="animatedCards" size="small" />
+  </div>
+  <div v-if="staticCards.length > 0">
+    <h2 class="text-2xl font-bold my-4">static stickers</h2>
+    <StickerGrid :cards="staticCards" size="small" />
+  </div>
 </template>
 
 <script>

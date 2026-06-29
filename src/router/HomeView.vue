@@ -1,7 +1,7 @@
 <template>
-  <div class="header-2">animated stickers</div>
+  <h2 class="text-2xl font-bold my-4">animated stickers</h2>
   <StickerGrid :cards="animatedCards" size="small" />
-  <div class="header-2">static stickers</div>
+  <h2 class="text-2xl font-bold my-4">static stickers</h2>
   <StickerGrid :cards="staticCards" size="small" />
 </template>
 

@@ -1,20 +1,22 @@
 <script setup></script>
 
 <template>
-  <div class="header-2">
-    {{ title }}
-    <a class="add-btn telegram" :href="link" style="margin-right: 0.5em">add to telegram</a>
-    <a class="add-btn matrix" v-on:click="isMatrixPopupOpen = true">add to matrix</a>
+  <div class="flex items-center justify-between my-4">
+    <h2 class="text-2xl font-bold">{{ title }}</h2>
+    <div class="btn-group">
+      <a class="btn btn-info" :href="link">add to telegram</a>
+      <button class="btn btn-outline" v-on:click="isMatrixPopupOpen = true">add to matrix</button>
+    </div>
   </div>
   <StickerGrid :cards="stickers" size="large" />
   <template v-if="premium_stickers.length > 0">
-    <div class="header-2 smaller">premium animation</div>
+    <h3 class="text-xl font-semibold mt-6">premium animation</h3>
     <StickerGrid :cards="premium_stickers" size="large" />
   </template>
   <template v-if="isMatrixPopupOpen">
-    <div class="popup-container">
-      <div class="popup">
-        {{ matrixEvent }}
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-base-100 p-4 rounded-lg max-w-xl w-full">
+        <pre class="whitespace-pre-wrap">{{ matrixEvent }}</pre>
       </div>
     </div>
   </template>

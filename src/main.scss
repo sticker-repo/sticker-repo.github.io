@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-    background-color: #fffdf6;
+    // background-color: #fffdf6;
     min-height: calc(100vh - 1em);
     margin: 0.5em;
 }
@@ -14,127 +14,12 @@ body {
     grid-template-rows: auto 1fr auto;
 }
 
-.header-1,
-.header-2,
-.footnote {
-    background-color: #faf6e9;
-    color: #495b37;
-    font-size: xx-large;
-    font-family:
-        'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana,
-        sans-serif;
-    padding-top: 0.25em;
-    padding-bottom: 0.25em;
+/* Keep minimal global media rules for sticker media elements */
+tgs-player, video, img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.header-1 {
-    gap: 0.25em;
-
-    a {
-        cursor: pointer;
-    }
-}
-
-.header-2 {
-    font-size: x-large;
-    padding-top: 0.25em;
-    padding-bottom: 0.25em;
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-    gap: 0.25em;
-
-    &.smaller {
-        font-size: large;
-    }
-}
-
-.footnote {
-    font-size: small;
-    padding-top: 0.25em;
-    padding-bottom: 0.25em;
-    margin-top: 0.5em;
-}
-
-.footnote a {
-    color: #495b37;
-}
-
-.add-btn, .back-btn, .search-btn {
-    display: inline;
-    vertical-align: middle;
-    color: #f1f1f1;
-    padding: 0.25em;
-    font-size: small;
-    align-self: center;
-    justify-self: center;
-    border-radius: 0.5em;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.search-btn {
-    background-color: #6e9b41;
-}
-
-.add-btn.telegram {
-    background-color: #24a1de;
-}
-
-.add-btn.matrix {
-    background-color: #606060;
-}
-
-.back-btn {
-    background-color: #797979;
-}
-
-/* Shared thumbnail styles used by multiple views */
-.thumbnail-container {
-    display: flex;
-    flex-flow: row wrap;
-    gap: 0.25em;
-}
-.thumbnail {
-    object-fit: contain;
-    border-radius: 1em;
-    padding: 0.25em;
-}
-.thumbnail.clickable {
-    cursor: pointer;
-}
-.thumbnail.small {
-    width: 4em;
-    height: 4em;
-}
-.thumbnail.large {
-    width: 8em;
-    height: 8em;
-}
-.thumbnail:nth-child(odd) {
-    background-color: #e4e4e4;
-}
-.thumbnail:nth-child(even) {
-    background-color: #f1f1f1;
-}
-
-.popup-container {
-    z-index: 100;
-    background-color: rgba(55, 55, 55, 0.853);
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-
-    display: grid;
-    align-items: center;
-    justify-content: center;
-    justify-items: center;
-    grid-template-columns: min(100em, 0.5fr);
-
-    .popup {
-        width: calc(min(100em, 50%));
-        background-color: white;
-    }
-}
 

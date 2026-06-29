@@ -5,16 +5,16 @@ import * as unicodeEmoji from 'unicode-emoji';
 </script>
 
 <template>
-  <div class="header-2">select an emoji to search</div>
-  <div class="emoji-container">
-    <div
-      class="emoji"
+  <h2 class="text-2xl font-bold my-4">select an emoji to search</h2>
+  <div class="flex flex-wrap gap-2">
+    <button
+      class="btn btn-ghost text-2xl"
       v-for="emoji in emojis"
       :key="emoji"
       v-on:click="$router.push(`/search/${emoji}`)"
     >
       {{ emoji }}
-    </div>
+    </button>
   </div>
 </template>
 
