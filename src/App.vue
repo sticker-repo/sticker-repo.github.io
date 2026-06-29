@@ -3,10 +3,23 @@
 <template>
   <div class="navbar bg-base-200 shadow-sm sticky top-0 z-50">
     <div class="flex-1">
+      <template v-if="$route.path === '/'">
+        <div class="dropdown sm:hidden">
+          <div tabindex="0" role="button" class="btn btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /> </svg>
+          </div>
+          <ul
+            tabindex="-1"
+            class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-48 p-2 shadow">
+            <li><a class="text-base" href="/#animated-packs" >animated packs</a></li>
+            <li><a class="text-base" href="/#static-packs" >static packs</a></li>
+          </ul>
+        </div>
+      </template>
       <a class="btn btn-ghost text-xl capitalize" href="/" >sticker repo</a>
       <template v-if="$route.path === '/'">
-        <a class="btn btn-ghost capitalize" href="/#animated-packs" >animated packs</a>
-        <a class="btn btn-ghost capitalize" href="/#static-packs" >static packs</a>
+        <a class="btn btn-ghost capitalize hidden sm:flex" href="/#animated-packs" >animated packs</a>
+        <a class="btn btn-ghost capitalize hidden sm:flex" href="/#static-packs" >static packs</a>
       </template>
     </div>
     <div class="flex-none">
