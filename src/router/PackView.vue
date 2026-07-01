@@ -191,6 +191,12 @@ export default {
         extension: this.thumbnailExtension,
         fileName: `thumbnail.${this.thumbnailExtension}`,
         premium_animation: false,
+      }, {
+        id: 'info',
+        src: `https://sticker-repo.github.io/s1/info/${this.$route.params.packName}.json`,
+        extension: 'json',
+        fileName: `info.json`,
+        premium_animation: false,
       }]
       if (cards.length === 0) return
 
