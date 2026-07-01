@@ -39,6 +39,29 @@ const openMatrixModal = () => {
       </div>
       <p class="mt-4 mb-4">Use one if these approaches:</p>
       <div class="flex flex-col gap-2">
+        <button class="btn btn-primary w-full justify-start capitalize" v-on:click="isCinnyOpen = !isCinnyOpen">use Cinny
+          <svg class="w-5 h-5 ml-auto" :class="isCinnyOpen ? '-rotate-90' : 'rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        <div v-if="isCinnyOpen" class="card card-border bg-base-300">
+          <div class="card-body">
+            <ol class="list-decimal list-inside space-y-2 ml-2">
+              <li>Open your room in Cinny and go to <code class="bg-base-200 px-2 py-1 rounded text-sm">Room Settings</code>.</li>
+              <li>Enable Developer Tools.</li>
+              <li>In <code class="bg-base-200 px-2 py-1 rounded text-sm">Room State</code> section, click on <code class="bg-base-200 px-2 py-1 rounded text-sm">Expand</code>.</li>
+              <li>Click on <code class="bg-base-200 px-2 py-1 rounded text-sm">Add New</code>.</li>
+              <li>Enter the following data:
+<pre class="overflow-auto bg-base-200 rounded ml-4"><code>State Event Type: im.ponies.room_emotes
+State Key: {{ name }}
+JSON Content:
+{{ matrixEvent }}
+</code></pre>
+              </li>
+            </ol>
+          </div>
+        </div>
+
         <button class="btn btn-primary w-full justify-start capitalize" v-on:click="isCurlOpen = !isCurlOpen">use curl (HTTP client)
           <svg class="w-5 h-5 ml-auto" :class="isCurlOpen ? '-rotate-90' : 'rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -89,7 +112,7 @@ Event Content:
               </li>
               <li>Click <code class="bg-base-200 px-2 py-1 rounded text-sm">Send</code></li>
             </ol>
-            <p class="mt-4 mb-2">Here we used Element to add the sticker pack. However, Element doesn’t support using stickers, and we should use clients like <code class="bg-base-200 px-2 py-1 rounded text-sm">FluffyChat</code> afterward.</p>
+            <p class="mt-4 mb-2">Here we used Element to add the sticker pack. However, Element doesn’t support using stickers, and we should use clients like <code class="bg-base-200 px-2 py-1 rounded text-sm">FluffyChat</code> or <code class="bg-base-200 px-2 py-1 rounded text-sm">Cinny</code> afterward.</p>
           </div>
         </div>
 
@@ -152,6 +175,7 @@ export default {
       thumbnailExtension: '',
       stickers: [],
       premium_stickers: [],
+      isCinnyOpen: false,
       isCurlOpen: false,
       isElementOpen: false,
     }
