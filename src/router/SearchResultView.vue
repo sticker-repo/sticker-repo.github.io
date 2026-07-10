@@ -22,7 +22,7 @@ export default {
     }
   },
   async created() {
-    const data = await fetchJson('https://sticker-repo.github.io/s1/emoji_index.json')
+    const data = await fetchJson('/s1/emoji_index.json')
     if (!data) return
     const stickerFiles = data[this.$route.params.emoji] || []
     const _animated = []
@@ -39,7 +39,7 @@ export default {
     shuffle(_static)
     const prepare = function (it) {
       const ext = it.stickerFile.split('.').pop()
-      return { key: it.stickerFile, src: `https://sticker-repo.github.io/s1/files/${it.stickerFile}`, extension: ext, route: `/pack/${it.packName}` }
+      return { key: it.stickerFile, src: `/s1/files/${it.stickerFile}`, extension: ext, route: `/pack/${it.packName}` }
     }
     this.animatedCards = _animated.map(prepare)
     this.staticCards = _static.map(prepare)

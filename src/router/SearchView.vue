@@ -44,7 +44,7 @@ export default {
   computed: {},
   created() {
     const indexMap = new Map(unicodeEmoji.getEmojis().map(e => e.emoji).map((v, i) => [v, i]));    
-    fetchJson('https://sticker-repo.github.io/s1/emoji_index.json').then((data) => {
+    fetchJson('/s1/emoji_index.json').then((data) => {
       if (!data) return
       let emojis = Object.keys(data).sort()
       emojis.sort((a, b) => {

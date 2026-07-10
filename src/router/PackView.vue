@@ -187,13 +187,13 @@ export default {
     async downloadPackZip() {
       const cards = [...this.stickers, {
         id: 'thumbnail',
-        src: `https://sticker-repo.github.io/s1/files/${this.$route.params.packName}/thumbnail.${this.thumbnailExtension}`,
+        src: `/s1/files/${this.$route.params.packName}/thumbnail.${this.thumbnailExtension}`,
         extension: this.thumbnailExtension,
         fileName: `thumbnail.${this.thumbnailExtension}`,
         premium_animation: false,
       }, {
         id: 'info',
-        src: `https://sticker-repo.github.io/s1/info/${this.$route.params.packName}.json`,
+        src: `/s1/info/${this.$route.params.packName}.json`,
         extension: 'json',
         fileName: `info.json`,
         premium_animation: false,
@@ -236,7 +236,7 @@ export default {
   },
   async created() {
     const data = await fetchJson(
-      `https://sticker-repo.github.io/s1/info/${this.$route.params.packName}.json`,
+      `/s1/info/${this.$route.params.packName}.json`,
     )
     if (!data) return
     this.title = data.title
@@ -257,11 +257,15 @@ export default {
         usage: ['sticker', 'emoticon'],
       },
     }
+    let matrixHomeserverHostname = window.location.hostname // using local homeserver with https://github.com/sticker-repo/matrix-homeserver/
+    if (window.location.hostname === 'sticker-repo.github.io') {
+      matrixHomeserverHostname = 'mtx.sticker-repo.workers.dev'; // using our cloudflare worker
+    }
     for (let i = 0; i < data.stickers.length; i++) {
       const sticker = data.stickers[i]
       let s = {
         id: sticker.file_unique_id,
-        src: `https://sticker-repo.github.io/s1/files/${this.$route.params.packName}/${sticker.file_unique_id}.${sticker.extension}`,
+        src: `/s1/files/${this.$route.params.packName}/${sticker.file_unique_id}.${sticker.extension}`,
         extension: sticker.extension,
         fileName: `${sticker.file_unique_id}.${sticker.extension}`,
         premium_animation: sticker.premium_animation !== undefined,
@@ -271,7 +275,7 @@ export default {
       } else {
         this.stickers.push(s)
         matrixEvent.images[String(i)] = {
-          url: `mxc://mtx.sticker-repo.workers.dev/s1-${data.name}-${sticker.file_unique_id}-${sticker.extension}`,
+          url: `mxc://${matrixHomeserverHostname}/s1-${data.name}-${sticker.file_unique_id}-${sticker.extension}`,
           body: sticker.emoji,
         }
         const mimetype = extToMimetype(sticker.extension)

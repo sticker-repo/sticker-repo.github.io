@@ -29,16 +29,16 @@ export default {
     },
   },
   async created() {
-    const data = await fetchJson('https://sticker-repo.github.io/s1/thumbnails.json')
+    const data = await fetchJson('/s1/thumbnails.json')
     if (data) {
       const packs = data
       if (packs.tgs) shuffle(packs.tgs)
       if (packs.webp) shuffle(packs.webp)
       if (packs.webm) shuffle(packs.webm)
       this.packs = packs
-      this.tgsCards = packs.tgs.map((item) => ({ key: item, src: `https://sticker-repo.github.io/s1/files/${item}/thumbnail.tgs`, extension: 'tgs', route: `/pack/${item}` }))
-      this.webpCards = (packs.webp || []).map((item) => ({ key: item, src: `https://sticker-repo.github.io/s1/files/${item}/thumbnail.webp`, extension: 'webp', route: `/pack/${item}` }))
-      this.webmCards = (packs.webm || []).map((item) => ({ key: item, src: `https://sticker-repo.github.io/s1/files/${item}/thumbnail.webm`, extension: 'webm', route: `/pack/${item}` }))
+      this.tgsCards = packs.tgs.map((item) => ({ key: item, src: `/s1/files/${item}/thumbnail.tgs`, extension: 'tgs', route: `/pack/${item}` }))
+      this.webpCards = (packs.webp || []).map((item) => ({ key: item, src: `/s1/files/${item}/thumbnail.webp`, extension: 'webp', route: `/pack/${item}` }))
+      this.webmCards = (packs.webm || []).map((item) => ({ key: item, src: `/s1/files/${item}/thumbnail.webm`, extension: 'webm', route: `/pack/${item}` }))
     }
   },
 }
