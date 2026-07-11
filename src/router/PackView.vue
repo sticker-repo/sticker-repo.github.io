@@ -47,17 +47,10 @@ const openMatrixModal = () => {
         <div v-if="isCinnyOpen" class="card card-border bg-base-300">
           <div class="card-body">
             <ol class="list-decimal list-inside space-y-2 ml-2">
-              <li>Open your room in Cinny and go to <code class="bg-base-200 px-2 py-1 rounded text-sm">Room Settings</code>.</li>
-              <li>Enable Developer Tools.</li>
-              <li>In <code class="bg-base-200 px-2 py-1 rounded text-sm">Room State</code> section, click on <code class="bg-base-200 px-2 py-1 rounded text-sm">Expand</code>.</li>
-              <li>Click on <code class="bg-base-200 px-2 py-1 rounded text-sm">Add New</code>.</li>
-              <li>Enter the following data:
-<pre class="overflow-auto bg-base-200 rounded ml-4"><code>State Event Type: im.ponies.room_emotes
-State Key: {{ name }}
-JSON Content:
-{{ matrixEvent }}
-</code></pre>
-              </li>
+              <li>Download and unzip pack files</li>
+              <li>Open your space/room in Cinny and go to <code class="bg-base-200 px-2 py-1 rounded text-sm">Space/room Settings</code>.</li>
+              <li>Open <code class="bg-base-200 px-2 py-1 rounded text-sm">Emojis & Stickers</code></li>
+              <li>Create a <code class="bg-base-200 px-2 py-1 rounded text-sm">New pack</code> and Upload all the unzip stickers in bulk.</li>
             </ol>
           </div>
         </div>
