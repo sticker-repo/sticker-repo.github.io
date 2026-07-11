@@ -39,7 +39,7 @@ const openMatrixModal = () => {
       </div>
       <p class="mt-4 mb-4">Use one if these approaches:</p>
       <div class="flex flex-col gap-2">
-        <button class="btn btn-primary w-full justify-start capitalize" v-on:click="isCinnyOpen = !isCinnyOpen">use Cinny
+        <button class="btn btn-primary w-full justify-start capitalize" v-on:click="isCinnyOpen = !isCinnyOpen">use Cinny (by uploading Zip)
           <svg class="w-5 h-5 ml-auto" :class="isCinnyOpen ? '-rotate-90' : 'rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
@@ -47,10 +47,33 @@ const openMatrixModal = () => {
         <div v-if="isCinnyOpen" class="card card-border bg-base-300">
           <div class="card-body">
             <ol class="list-decimal list-inside space-y-2 ml-2">
-              <li>Download and unzip pack files</li>
+              <li>Download and unzip pack files.</li>
               <li>Open your space/room in Cinny and go to <code class="bg-base-200 px-2 py-1 rounded text-sm">Space/room Settings</code>.</li>
-              <li>Open <code class="bg-base-200 px-2 py-1 rounded text-sm">Emojis & Stickers</code></li>
+              <li>Open <code class="bg-base-200 px-2 py-1 rounded text-sm">Emojis & Stickers</code>.</li>
               <li>Create a <code class="bg-base-200 px-2 py-1 rounded text-sm">New pack</code> and Upload all the unzip stickers in bulk.</li>
+            </ol>
+          </div>
+        </div>
+
+        <button class="btn btn-primary w-full justify-start capitalize" v-on:click="isCinnyOpen2 = !isCinnyOpen2">use Cinny (by sending a room state event)
+          <svg class="w-5 h-5 ml-auto" :class="isCinnyOpen2 ? '-rotate-90' : 'rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        <div v-if="isCinnyOpen2" class="card card-border bg-base-300">
+          <div class="card-body">
+            <ol class="list-decimal list-inside space-y-2 ml-2">
+              <li>Open your room in Cinny and go to <code class="bg-base-200 px-2 py-1 rounded text-sm">Room Settings</code>.</li>
+              <li>Enable Developer Tools.</li>
+              <li>In <code class="bg-base-200 px-2 py-1 rounded text-sm">Room State</code> section, click on <code class="bg-base-200 px-2 py-1 rounded text-sm">Expand</code>.</li>
+              <li>Click on <code class="bg-base-200 px-2 py-1 rounded text-sm">Add New</code>.</li>
+              <li>Enter the following data:
+<pre class="overflow-auto bg-base-200 rounded ml-4"><code>State Event Type: im.ponies.room_emotes
+State Key: {{ name }}
+JSON Content:
+{{ matrixEvent }}
+</code></pre>
+              </li>
             </ol>
           </div>
         </div>
@@ -171,6 +194,7 @@ export default {
       stickers: [],
       premium_stickers: [],
       isCinnyOpen: false,
+      isCinnyOpen2: false,
       isCurlOpen: false,
       isElementOpen: false,
       isDownloadingPack: false,

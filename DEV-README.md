@@ -31,6 +31,20 @@ npm install
 npm run dev
 ```
 
+Uncomment this section in `vite.config.js`:
+
+```js
+  // for dev server
+  // server: {
+  //   proxy: {
+  //     '^/(?!search|pack|@|src|$)': {
+  //       target: 'https://sticker-repo.github.io',
+  //       changeOrigin: true,
+  //     }
+  //   }
+  // },
+```
+
 ### Compile and Minify for Production
 
 ```sh

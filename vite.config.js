@@ -17,4 +17,13 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  // for dev server
+  // server: {
+  //   proxy: {
+  //     '^/(?!search|pack|@|src|$)': {
+  //       target: 'https://sticker-repo.github.io',
+  //       changeOrigin: true,
+  //     }
+  //   }
+  // },
 })
