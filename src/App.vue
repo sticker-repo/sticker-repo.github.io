@@ -26,7 +26,7 @@
       <a v-if="$route.path === '/'" class="btn btn-secondary capitalize" @click="$router.push('/search')">search with emoji</a>
       <a v-else @click="$router.back()" class="btn btn-outline capitalize">back</a>
       <button type="button" class="btn btn-outline capitalize ml-2 mr-2" @click="handleAuthButtonClick">
-        {{ isAuthenticated ? 'logout' : 'login' }}
+        {{ isAuthenticated ? 'logout' : isHandlingSsoCallback ? 'finishing login…' : 'login' }}
       </button>
     </div>
   </div>
@@ -93,6 +93,7 @@ export default {
       authUser: '',
       loginError: '',
       isSubmitting: false,
+      isHandlingSsoCallback: false,
       pendingSsoServer: '',
       pendingSsoUser: '',
       loginForm: {
@@ -219,12 +220,16 @@ export default {
       const params = new URLSearchParams(window.location.search)
       const loginToken = params.get('loginToken') || params.get('login_token')
       if (!loginToken) {
+        this.isHandlingSsoCallback = false
         return
       }
+
+      this.isHandlingSsoCallback = true
 
       const pendingSsoServer = this.pendingSsoServer || window.sessionStorage.getItem('matrixPendingSsoServer') || ''
       const pendingSsoUser = this.pendingSsoUser || window.sessionStorage.getItem('matrixPendingSsoUser') || ''
       if (!pendingSsoServer) {
+        this.isHandlingSsoCallback = false
         return
       }
 
@@ -254,6 +259,7 @@ export default {
       } finally {
         this.pendingSsoServer = ''
         this.pendingSsoUser = ''
+        this.isHandlingSsoCallback = false
         window.sessionStorage.removeItem('matrixPendingSsoServer')
         window.sessionStorage.removeItem('matrixPendingSsoUser')
       }
