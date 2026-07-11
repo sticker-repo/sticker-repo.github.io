@@ -23,11 +23,11 @@
       </template>
     </div>
     <div class="flex-none">
-      <button type="button" class="btn btn-outline capitalize mr-2" @click="handleAuthButtonClick">
+      <a v-if="$route.path === '/'" class="btn btn-secondary capitalize" @click="$router.push('/search')">search with emoji</a>
+      <a v-else @click="$router.back()" class="btn btn-outline capitalize">back</a>
+      <button type="button" class="btn btn-outline capitalize ml-2 mr-2" @click="handleAuthButtonClick">
         {{ isAuthenticated ? 'logout' : 'login' }}
       </button>
-      <a v-if="$route.path === '/'" class="btn btn-secondary mr-2 capitalize" @click="$router.push('/search')">search with emoji</a>
-      <a v-else @click="$router.back()" class="btn btn-outline capitalize">back</a>
     </div>
   </div>
 
@@ -42,14 +42,25 @@
         </label>
         <label class="form-control w-full">
           <span class="label-text">Password</span>
-          <input v-model="loginForm.password" type="password" class="input input-bordered w-full" placeholder="••••••••" required />
+          <input
+            v-model="loginForm.password"
+            :disabled="usesSsoLogin"
+            :class="{ 'input-disabled opacity-60': usesSsoLogin }"
+            type="password"
+            class="input input-bordered w-full"
+            placeholder="••••••••"
+            :required="!usesSsoLogin"
+          />
         </label>
+        <p v-if="usesSsoLogin" class="text-sm text-info">
+          Mozilla SSO is enabled for this Matrix ID. The password field is disabled and the form will continue through Mozilla sign-in.
+        </p>
         <p v-if="loginError" class="text-sm text-error">{{ loginError }}</p>
         <p class="py-2 text-sm">Privacy note: The login is client-side and your login credentials do not leave your browser. If you want, you can also <a href="https://github.com/sticker-repo/matrix-homeserver" class="link">self-host this website!</a></p>
         <div class="modal-action">
           <button type="button" class="btn btn-ghost" @click="closeLoginDialog">Cancel</button>
           <button type="submit" class="btn btn-primary" :class="{ loading: isSubmitting }">
-            {{ isSubmitting ? 'Signing in…' : 'Login' }}
+            {{ isSubmitting ? 'Signing in…' : usesSsoLogin ? 'Continue with Mozilla SSO' : 'Login' }}
           </button>
         </div>
       </form>
@@ -82,14 +93,38 @@ export default {
       authUser: '',
       loginError: '',
       isSubmitting: false,
+      pendingSsoServer: '',
+      pendingSsoUser: '',
       loginForm: {
         matrixId: '',
         password: '',
       },
     }
   },
+  computed: {
+    usesSsoLogin() {
+      const matrixId = (this.loginForm.matrixId || '').trim()
+      if (!matrixId) {
+        return false
+      }
+
+      const domain = matrixId.replace(/^@/, '').split(':').pop()?.toLowerCase()
+      return ['mozilla.org', 'mozilla.modular.im', 'modular.im'].includes(domain)
+    },
+  },
+  watch: {
+    '$route.query': {
+      handler() {
+        this.handleSsoCallback()
+      },
+      immediate: true,
+    },
+  },
   created() {
     this.restoreSession()
+  },
+  mounted() {
+    this.handleSsoCallback()
   },
   methods: {
     restoreSession() {
@@ -139,6 +174,11 @@ export default {
           throw new Error('Please enter a valid Matrix ID such as user:matrix.org')
         }
 
+        if (this.usesSsoLogin) {
+          await this.startSsoLogin(server, matrixId)
+          return
+        }
+
         const response = await fetch(`${server}/_matrix/client/v3/login`, {
           method: 'POST',
           headers: {
@@ -165,15 +205,72 @@ export default {
         this.isSubmitting = false
       }
     },
+    async startSsoLogin(server, matrixId) {
+      const redirectUrl = `${window.location.origin}${window.location.pathname}`
+      this.pendingSsoServer = server
+      this.pendingSsoUser = matrixId
+      window.sessionStorage.setItem('matrixPendingSsoServer', server)
+      window.sessionStorage.setItem('matrixPendingSsoUser', matrixId)
+
+      const loginUrl = `${server}/_matrix/client/v3/login/sso/redirect?redirectUrl=${encodeURIComponent(redirectUrl)}`
+      window.location.assign(loginUrl)
+    },
+    async handleSsoCallback() {
+      const params = new URLSearchParams(window.location.search)
+      const loginToken = params.get('loginToken') || params.get('login_token')
+      if (!loginToken) {
+        return
+      }
+
+      const pendingSsoServer = this.pendingSsoServer || window.sessionStorage.getItem('matrixPendingSsoServer') || ''
+      const pendingSsoUser = this.pendingSsoUser || window.sessionStorage.getItem('matrixPendingSsoUser') || ''
+      if (!pendingSsoServer) {
+        return
+      }
+
+      try {
+        const response = await fetch(`${pendingSsoServer}/_matrix/client/v3/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: 'm.login.token',
+            token: loginToken,
+          }),
+        })
+
+        const data = await response.json().catch(() => ({}))
+        if (!response.ok || !data.access_token) {
+          throw new Error(data.error || data.message || 'Mozilla SSO login could not be completed.')
+        }
+
+        this.persistSession(data.access_token, pendingSsoServer, pendingSsoUser)
+        this.closeLoginDialog()
+        const cleanUrl = window.location.origin + window.location.pathname
+        window.history.replaceState({}, '', cleanUrl)
+      } catch (error) {
+        this.loginError = error.message || 'Mozilla Sso login could not be completed.'
+      } finally {
+        this.pendingSsoServer = ''
+        this.pendingSsoUser = ''
+        window.sessionStorage.removeItem('matrixPendingSsoServer')
+        window.sessionStorage.removeItem('matrixPendingSsoUser')
+      }
+    }, 
     resolveLoginServer(matrixId) {
       const match = matrixId.match(/^@?[^:]+:(.+)$/)
       if (!match) {
         return null
       }
 
-      const domain = match[1]
+      const domain = match[1].toLowerCase()
       if (domain === 'matrix.org') {
         return 'https://account.matrix.org'
+      }
+
+      if (['mozilla.org', 'mozilla.modular.im', 'modular.im'].includes(domain)) {
+        return 'https://mozilla.modular.im'
       }
 
       return `https://${domain}`
@@ -203,7 +300,9 @@ export default {
       this.authToken = ''
       this.authServer = ''
       this.authUser = ''
-      this.loginError = ''
+      this.loginError = ''      
+      this.pendingSsoServer = ''
+      this.pendingSsoUser = ''    
     },
     async logout() {
       if (this.authToken && this.authServer) {
