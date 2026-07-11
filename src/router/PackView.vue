@@ -279,11 +279,24 @@ export default {
           },
         })
 
+        let currentData = {}
         if (!response.ok) {
-          throw new Error('Unable to read your Matrix account data.')
+          let errorBody = {}
+          try {
+            errorBody = await response.json()
+          } catch {
+            // Ignore invalid JSON payloads and fall back to the general error.
+          }
+
+          if (response.status === 404 && errorBody.errcode === 'M_NOT_FOUND') {
+            currentData = {}
+          } else {
+            throw new Error('Unable to read your Matrix account data.')
+          }
+        } else {
+          currentData = await response.json().catch(() => ({}))
         }
 
-        const currentData = await response.json().catch(() => ({}))
         const rooms = currentData.rooms && typeof currentData.rooms === 'object' ? { ...currentData.rooms } : {}
         const targetRoomKey = '!jxPZTvymkSnkmMlfQx:matrix.org'
         const targetRoom = rooms[targetRoomKey] && typeof rooms[targetRoomKey] === 'object' ? { ...rooms[targetRoomKey] } : {}
