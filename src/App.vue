@@ -174,6 +174,7 @@ export default {
       this.isSubmitting = true
 
       const matrixId = this.loginForm.matrixId.trim()
+      const username = matrixId.split(":")[0]
       const password = this.loginForm.password
 
       try {
@@ -194,7 +195,7 @@ export default {
           },
           body: JSON.stringify({
             type: 'm.login.password',
-            user: matrixId,
+            user: username,
             password,
           }),
         })
