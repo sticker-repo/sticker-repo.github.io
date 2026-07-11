@@ -126,6 +126,10 @@ export default {
   },
   mounted() {
     this.handleSsoCallback()
+    window.addEventListener('open-matrix-login', this.openLoginDialog)
+  },
+  beforeUnmount() {
+    window.removeEventListener('open-matrix-login', this.openLoginDialog)
   },
   methods: {
     restoreSession() {
@@ -144,12 +148,7 @@ export default {
         this.authUser = user
       }
     },
-    handleAuthButtonClick() {
-      if (this.isAuthenticated) {
-        this.logout()
-        return
-      }
-
+    openLoginDialog() {
       this.loginError = ''
       this.loginForm = {
         matrixId: '',
@@ -158,6 +157,14 @@ export default {
       this.$nextTick(() => {
         this.$refs.loginDialog?.showModal()
       })
+    },
+    handleAuthButtonClick() {
+      if (this.isAuthenticated) {
+        this.logout()
+        return
+      }
+
+      this.openLoginDialog()
     },
     closeLoginDialog() {
       this.$refs.loginDialog?.close()

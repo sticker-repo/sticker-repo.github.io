@@ -37,6 +37,10 @@ const openMatrixModal = () => {
         </svg>
         <span>Your matrix client may not support animated sticker packs!</span>
       </div>
+      <button class="btn btn-secondary w-full justify-start normal-case mt-4" :disabled="isSettingForAccount" @click="setPackForAccountDirectly">
+        {{ isSettingForAccount ? 'Saving to your account…' : hasMatrixAccountSession ? 'set it for my account directly' : 'login, to set this pack in your account directly' }}
+      </button>
+      <p v-if="accountActionMessage" class="mt-2 text-sm" :class="accountActionError ? 'text-error' : 'text-success'">{{ accountActionMessage }}</p>
       <p class="mt-4 mb-4">Use one if these approaches:</p>
       <div class="flex flex-col gap-2">
         <button class="btn btn-primary w-full justify-start capitalize" v-on:click="isCinnyOpen = !isCinnyOpen">use Cinny (by uploading Zip)
@@ -198,9 +202,104 @@ export default {
       isCurlOpen: false,
       isElementOpen: false,
       isDownloadingPack: false,
+      isSettingForAccount: false,
+      accountActionMessage: '',
+      accountActionError: false,
     }
   },
+  computed: {
+    hasMatrixAccountSession() {
+      if (typeof window === 'undefined') {
+        return false
+      }
+
+      const token = window.localStorage.getItem('matrixAuthToken') || ''
+      const server = window.localStorage.getItem('matrixAuthServer') || ''
+      const user = window.localStorage.getItem('matrixAuthUser') || ''
+      return Boolean(token && server && user)
+    },
+  },
   methods: {
+    openLoginDialog() {
+      window.dispatchEvent(new CustomEvent('open-matrix-login'))
+    },
+    getMatrixAuthSession() {
+      if (typeof window === 'undefined') {
+        return null
+      }
+
+      const token = window.localStorage.getItem('matrixAuthToken') || ''
+      const server = window.localStorage.getItem('matrixAuthServer') || ''
+      const user = window.localStorage.getItem('matrixAuthUser') || ''
+
+      if (!token || !server || !user) {
+        return null
+      }
+
+      return {
+        token,
+        server,
+        user: user.startsWith('@') ? user : `@${user}`,
+      }
+    },
+    async setPackForAccountDirectly() {
+      this.accountActionMessage = ''
+      this.accountActionError = false
+
+      const auth = this.getMatrixAuthSession()
+      if (!auth) {
+        this.openLoginDialog()
+        this.accountActionMessage = 'Please log in to save this pack to your Matrix account.'
+        this.accountActionError = true
+        return
+      }
+
+      this.isSettingForAccount = true
+
+      try {
+        const accountDataUrl = `${auth.server}/_matrix/client/v3/user/${encodeURIComponent(auth.user)}/account_data/im.ponies.emote_rooms`
+        const response = await fetch(accountDataUrl, {
+          headers: {
+            Authorization: `Bearer ${auth.token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error('Unable to read your Matrix account data.')
+        }
+
+        const currentData = await response.json().catch(() => ({}))
+        const rooms = currentData.rooms && typeof currentData.rooms === 'object' ? { ...currentData.rooms } : {}
+        const targetRoomKey = '!jxPZTvymkSnkmMlfQx:matrix.org'
+        const targetRoom = rooms[targetRoomKey] && typeof rooms[targetRoomKey] === 'object' ? { ...rooms[targetRoomKey] } : {}
+        targetRoom[this.name || this.title] = {}
+        rooms[targetRoomKey] = targetRoom
+
+        const putResponse = await fetch(accountDataUrl, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${auth.token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...currentData,
+            rooms,
+          }),
+        })
+
+        if (!putResponse.ok) {
+          throw new Error('Unable to save the pack to your Matrix account.')
+        }
+
+        this.accountActionMessage = `Saved ${this.name || this.title} to your Matrix account.`
+      } catch (error) {
+        this.accountActionError = true
+        this.accountActionMessage = error.message || 'Unable to save the pack to your Matrix account.'
+      } finally {
+        this.isSettingForAccount = false
+      }
+    },
     async downloadPackZip() {
       const cards = [...this.stickers, {
         id: 'thumbnail',
