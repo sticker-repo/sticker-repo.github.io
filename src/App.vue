@@ -23,10 +23,42 @@
       </template>
     </div>
     <div class="flex-none">
-      <a v-if="$route.path === '/'" v-on:click="$router.push(`/search`)" class="btn btn-secondary mr-2 capitalize">search with emoji</a>
-      <a v-else v-on:click="$router.back()" class="btn btn-outline capitalize">back</a>
+      <button type="button" class="btn btn-outline capitalize mr-2" @click="handleAuthButtonClick">
+        {{ isAuthenticated ? 'logout' : 'login' }}
+      </button>
+      <a v-if="$route.path === '/'" class="btn btn-secondary mr-2 capitalize" @click="$router.push('/search')">search with emoji</a>
+      <a v-else @click="$router.back()" class="btn btn-outline capitalize">back</a>
     </div>
   </div>
+
+  <dialog ref="loginDialog" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Matrix login</h3>
+      <p class="py-2 text-sm">Sign in with your Matrix account to add packs with one click.</p>
+      <form class="space-y-4" @submit.prevent="submitLogin">
+        <label class="form-control w-full">
+          <span class="label-text">Matrix ID</span>
+          <input v-model="loginForm.matrixId" class="input input-bordered w-full" placeholder="user:matrix.org" required />
+        </label>
+        <label class="form-control w-full">
+          <span class="label-text">Password</span>
+          <input v-model="loginForm.password" type="password" class="input input-bordered w-full" placeholder="••••••••" required />
+        </label>
+        <p v-if="loginError" class="text-sm text-error">{{ loginError }}</p>
+        <p class="py-2 text-sm">Privacy note: The login is client-side and your login credentials do not leave your browser. If you want, you can also <a href="https://github.com/sticker-repo/matrix-homeserver" class="link">self-host this website!</a></p>
+        <div class="modal-action">
+          <button type="button" class="btn btn-ghost" @click="closeLoginDialog">Cancel</button>
+          <button type="submit" class="btn btn-primary" :class="{ loading: isSubmitting }">
+            {{ isSubmitting ? 'Signing in…' : 'Login' }}
+          </button>
+        </div>
+      </form>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button type="submit">close</button>
+    </form>
+  </dialog>
+
   <main>
     <RouterView />
   </main>
@@ -44,48 +76,151 @@
 export default {
   data() {
     return {
-      // inLoading: true,
-      // packs: {
-      //   tgs: [],
-      //   webp: [],
-      // },
+      isAuthenticated: false,
+      authToken: '',
+      authServer: '',
+      authUser: '',
+      loginError: '',
+      isSubmitting: false,
+      loginForm: {
+        matrixId: '',
+        password: '',
+      },
     }
   },
-  computed: {},
   created() {
-    // window.addEventListener('load', this.onLoad)
-    // this.$nextTick(() => {
-    //   window.addEventListener('resize', this.onResize)
-    // })
-    // fetch('https://sticker-repo.github.io/s1/thumbnails.json')
-    //   .then((response) => {
-    //     response
-    //       .json()
-    //       .then((data) => {
-    //         let packs = {
-    //           tgs: [],
-    //           webp: [],
-    //         }
-    //         for (const packName in data) {
-    //           const thumbnailFormat = data[packName]
-    //           if (thumbnailFormat === 'tgs') {
-    //             packs.tgs.push(packName)
-    //           } else if (thumbnailFormat === 'webp') {
-    //             packs.webp.push(packName)
-    //           }
-    //         }
-    //         shuffle(packs.tgs)
-    //         shuffle(packs.webp)
-    //         this.packs = packs
-    //       })
-    //       .catch()
-    //   })
-    //   .catch()
+    this.restoreSession()
   },
   methods: {
-    // onLoad() {
-    //   this.inLoading = false
-    // },
+    restoreSession() {
+      if (typeof window === 'undefined') {
+        return
+      }
+
+      const token = window.localStorage.getItem('matrixAuthToken') || ''
+      const server = window.localStorage.getItem('matrixAuthServer') || ''
+      const user = window.localStorage.getItem('matrixAuthUser') || ''
+
+      if (token && server && user) {
+        this.isAuthenticated = true
+        this.authToken = token
+        this.authServer = server
+        this.authUser = user
+      }
+    },
+    handleAuthButtonClick() {
+      if (this.isAuthenticated) {
+        this.logout()
+        return
+      }
+
+      this.loginError = ''
+      this.loginForm = {
+        matrixId: '',
+        password: '',
+      }
+      this.$nextTick(() => {
+        this.$refs.loginDialog?.showModal()
+      })
+    },
+    closeLoginDialog() {
+      this.$refs.loginDialog?.close()
+    },
+    async submitLogin() {
+      this.loginError = ''
+      this.isSubmitting = true
+
+      const matrixId = this.loginForm.matrixId.trim()
+      const password = this.loginForm.password
+
+      try {
+        const server = this.resolveLoginServer(matrixId)
+        if (!server) {
+          throw new Error('Please enter a valid Matrix ID such as user:matrix.org')
+        }
+
+        const response = await fetch(`${server}/_matrix/client/v3/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: 'm.login.password',
+            user: matrixId,
+            password,
+          }),
+        })
+
+        const data = await response.json().catch(() => ({}))
+
+        if (!response.ok || !data.access_token) {
+          throw new Error(data.error || data.message || 'Login failed. Please check your credentials and homeserver.')
+        }
+
+        this.persistSession(data.access_token, server, matrixId)
+        this.closeLoginDialog()
+      } catch (error) {
+        this.loginError = error.message || 'Unable to sign in right now.'
+      } finally {
+        this.isSubmitting = false
+      }
+    },
+    resolveLoginServer(matrixId) {
+      const match = matrixId.match(/^@?[^:]+:(.+)$/)
+      if (!match) {
+        return null
+      }
+
+      const domain = match[1]
+      if (domain === 'matrix.org') {
+        return 'https://account.matrix.org'
+      }
+
+      return `https://${domain}`
+    },
+    persistSession(token, server, user) {
+      if (typeof window === 'undefined') {
+        return
+      }
+
+      window.localStorage.setItem('matrixAuthToken', token)
+      window.localStorage.setItem('matrixAuthServer', server)
+      window.localStorage.setItem('matrixAuthUser', user)
+
+      this.isAuthenticated = true
+      this.authToken = token
+      this.authServer = server
+      this.authUser = user
+    },
+    clearSession() {
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem('matrixAuthToken')
+        window.localStorage.removeItem('matrixAuthServer')
+        window.localStorage.removeItem('matrixAuthUser')
+      }
+
+      this.isAuthenticated = false
+      this.authToken = ''
+      this.authServer = ''
+      this.authUser = ''
+      this.loginError = ''
+    },
+    async logout() {
+      if (this.authToken && this.authServer) {
+        try {
+          await fetch(`${this.authServer}/_matrix/client/v3/logout`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${this.authToken}`,
+            },
+          })
+        } catch (error) {
+          // Ignore logout errors and still clear the local session.
+        }
+      }
+
+      this.clearSession()
+    },
   },
 }
 </script>
