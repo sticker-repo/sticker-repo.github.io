@@ -237,7 +237,7 @@ export default {
     openLoginDialog() {
       window.dispatchEvent(new CustomEvent('open-matrix-login'))
     },
-    async ensureJoinedToTargetRoom(auth, targetRoomKey) {
+    async ensureJoinedToTargetRoom(auth, targetRoomKeys) {
       const joinedRoomsUrl = `${auth.server}/_matrix/client/v3/joined_rooms`
       const joinedResponse = await fetch(joinedRoomsUrl, {
         headers: {
@@ -253,11 +253,12 @@ export default {
       const joinedData = await joinedResponse.json().catch(() => ({}))
       const joinedRooms = Array.isArray(joinedData.joined_rooms) ? joinedData.joined_rooms : []
 
-      if (joinedRooms.includes(targetRoomKey)) {
+      if (targetRoomKeys.some((roomKey) => joinedRooms.includes(roomKey))) {
         return false
       }
 
-      const joinResponse = await fetch(`${auth.server}/_matrix/client/v3/rooms/${encodeURIComponent(targetRoomKey)}/join`, {
+      const targetAlias = '#sticker-repo-webp:matrix.org'
+      const joinResponse = await fetch(`${auth.server}/_matrix/client/v3/rooms/${encodeURIComponent(targetAlias)}/join`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${auth.token}`,
@@ -349,7 +350,7 @@ export default {
         targetRoom[this.name || this.title] = {}
         rooms[targetRoomKey] = targetRoom
 
-        const didJoinTargetRoom = await this.ensureJoinedToTargetRoom(auth, targetRoomKey)
+        const didJoinTargetRoom = await this.ensureJoinedToTargetRoom(auth, [targetRoomKey, '#sticker-repo-webp:matrix.org'])
 
         const putResponse = await fetch(accountDataUrl, {
           method: 'PUT',
