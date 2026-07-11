@@ -30,20 +30,25 @@ const openMatrixModal = () => {
       <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
       </form>
-      <h3 class="text-lg font-bold">Add this pack to a Matrix room</h3>
+      <h3 class="text-lg font-bold">Add this pack</h3>
       <div role="alert" class="alert alert-warning mt-4" v-if="thumbnailExtension !== 'webp'">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
         <span>Your matrix client may not support animated sticker packs!</span>
       </div>
-      <button class="btn btn-secondary w-full justify-start normal-case mt-4" :disabled="isSettingForAccount" @click="setPackForAccountDirectly">
-        {{ isSettingForAccount ? 'Saving to your account…' : hasMatrixAccountSession ? 'set it for my account directly' : 'login, to set this pack in your account directly' }}
+      <button v-if="thumbnailExtension === 'webp'" class="btn btn-success w-full justify-start normal-case mt-4" :disabled="isSettingForAccount" @click="setPackForAccountDirectly">
+        {{ isSettingForAccount ? 'Saving to your account…' : hasMatrixAccountSession ? 'Click to apply it to your account directly' : 'Login, to apply this pack directly to your account' }}
       </button>
       <p v-if="accountActionMessage" class="mt-2 text-sm" :class="accountActionError ? 'text-error' : 'text-success'">{{ accountActionMessage }}</p>
-      <p class="mt-4 mb-4">Use one if these approaches:</p>
+
+      <div v-if="thumbnailExtension === 'webp'" class="divider"></div>
+
+      <p v-if="thumbnailExtension === 'webp'" class="mt-4 mb-4">Or, add manually by using one if these approaches:</p>
+      <p v-else class="mt-4 mb-4">Use one if these approaches:</p>
+
       <div class="flex flex-col gap-2">
-        <button class="btn btn-primary w-full justify-start capitalize" v-on:click="isCinnyOpen = !isCinnyOpen">use Cinny (by uploading Zip)
+        <button class="btn btn-primary w-full justify-start normal-case" v-on:click="isCinnyOpen = !isCinnyOpen">Use Cinny (by uploading Zip)
           <svg class="w-5 h-5 ml-auto" :class="isCinnyOpen ? '-rotate-90' : 'rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
@@ -59,7 +64,7 @@ const openMatrixModal = () => {
           </div>
         </div>
 
-        <button class="btn btn-primary w-full justify-start capitalize" v-on:click="isCinnyOpen2 = !isCinnyOpen2">use Cinny (by sending a room state event)
+        <button class="btn btn-primary w-full justify-start normal-case" v-on:click="isCinnyOpen2 = !isCinnyOpen2">Use Cinny (by sending a room state event)
           <svg class="w-5 h-5 ml-auto" :class="isCinnyOpen2 ? '-rotate-90' : 'rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
@@ -82,7 +87,7 @@ JSON Content:
           </div>
         </div>
 
-        <button class="btn btn-primary w-full justify-start capitalize" v-on:click="isCurlOpen = !isCurlOpen">use curl (HTTP client)
+        <button class="btn btn-primary w-full justify-start normal-case" v-on:click="isCurlOpen = !isCurlOpen">Use curl (HTTP client)
           <svg class="w-5 h-5 ml-auto" :class="isCurlOpen ? '-rotate-90' : 'rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
@@ -112,7 +117,7 @@ JSON Content:
           </div>
         </div>
 
-        <button class="btn btn-primary w-full justify-start capitalize" v-on:click="isElementOpen = !isElementOpen">use element web / desktop
+        <button class="btn btn-primary w-full justify-start normal-case" v-on:click="isElementOpen = !isElementOpen">Use element web / desktop
           <svg class="w-5 h-5 ml-auto" :class="isElementOpen ? '-rotate-90' : 'rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
@@ -136,23 +141,31 @@ Event Content:
           </div>
         </div>
 
+        <button class="btn btn-primary w-full justify-start normal-case" v-on:click="isFluffyChatOpen = !isFluffyChatOpen">Use FluffyChat to use the pack in all rooms
+          <svg class="w-5 h-5 ml-auto" :class="isFluffyChatOpen ? '-rotate-90' : 'rotate-90'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        <div v-if="isFluffyChatOpen" class="card card-border bg-base-300">
+          <div class="card-body">
+          <ol class="list-decimal list-inside space-y-2 ml-2">
+            <li>Open <code class="bg-base-200 px-2 py-1 rounded text-sm">FluffyChat</code> and go to the room with sticker packs you want to add.</li>
+            <li>Tap on the three dot menu top right and tap on <code class="bg-base-200 px-2 py-1 rounded text-sm">Emote Settings</code>.</li>
+            <li>Select the sticker pack.</li>
+            <li>Toggle <code class="bg-base-200 px-2 py-1 rounded text-sm">Enable emote pack globally</code>.</li>
+          </ol>
+          </div>
+        </div>
+
         <a v-if="thumbnailExtension === 'webp'"
         href="https://matrix.to/#/#sticker-repo-webp:matrix.org" target="_blank" rel="noopener noreferrer"
-        class="btn btn-secondary w-full justify-start normal-case">Or, find the <code class="px-1 py-0.5 rounded text-xs">{{ name }}</code> pack in our public room
+        class="btn btn-secondary w-full justify-start normal-case">Or, Find the <code class="px-1 py-0.5 rounded text-xs">{{ name }}</code> pack in our public room
           <svg class="w-5 h-5 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </a>
-        <button class="btn btn-accent w-full justify-start normal-case" :disabled="isDownloadingPack" @click="downloadPackZip">{{ isDownloadingPack ? 'Preparing zip…' : 'Or, download as zip' }}</button>
+        <button class="btn btn-accent w-full justify-start normal-case" :disabled="isDownloadingPack" @click="downloadPackZip">{{ isDownloadingPack ? 'Preparing Zip…' : 'Or, Download as Zip' }}</button>
       </div>
-      <div class="divider"></div>
-      <p class="mt-4 mb-2">Then, to use the sticker pack globally:</p>
-      <ol class="list-decimal list-inside space-y-2 ml-2">
-        <li>Open <code class="bg-base-200 px-2 py-1 rounded text-sm">FluffyChat</code> and go to the room with sticker packs you want to add.</li>
-        <li>Tap on the three dot menu top right and tap on <code class="bg-base-200 px-2 py-1 rounded text-sm">Emote Settings</code>.</li>
-        <li>Select the sticker pack.</li>
-        <li>Toggle <code class="bg-base-200 px-2 py-1 rounded text-sm">Enable emote pack globally</code>.</li>
-      </ol>
     </div>
     <form method="dialog" class="modal-backdrop">
       <button>close</button>
@@ -201,6 +214,7 @@ export default {
       isCinnyOpen2: false,
       isCurlOpen: false,
       isElementOpen: false,
+      isFluffyChatOpen: false,
       isDownloadingPack: false,
       isSettingForAccount: false,
       accountActionMessage: '',
