@@ -237,6 +237,52 @@ export default {
     openLoginDialog() {
       window.dispatchEvent(new CustomEvent('open-matrix-login'))
     },
+    async ensureJoinedToTargetRoom(auth, targetRoomKey) {
+      const joinedRoomsUrl = `${auth.server}/_matrix/client/v3/joined_rooms`
+      const joinedResponse = await fetch(joinedRoomsUrl, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!joinedResponse.ok) {
+        throw new Error('Unable to check your Matrix room membership.')
+      }
+
+      const joinedData = await joinedResponse.json().catch(() => ({}))
+      const joinedRooms = Array.isArray(joinedData.joined_rooms) ? joinedData.joined_rooms : []
+
+      if (joinedRooms.includes(targetRoomKey)) {
+        return false
+      }
+
+      const joinResponse = await fetch(`${auth.server}/_matrix/client/v3/rooms/${encodeURIComponent(targetRoomKey)}/join`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      })
+
+      if (!joinResponse.ok) {
+        let errorBody = {}
+        try {
+          errorBody = await joinResponse.json()
+        } catch {
+          // Ignore invalid JSON payloads and fall back to the general error.
+        }
+
+        if (joinResponse.status === 403 && errorBody.errcode === 'M_FORBIDDEN') {
+          throw new Error('You do not have permission to join the source room.')
+        }
+
+        throw new Error('Unable to join the source room.')
+      }
+
+      return true
+    },
     getMatrixAuthSession() {
       if (typeof window === 'undefined') {
         return null
@@ -303,6 +349,8 @@ export default {
         targetRoom[this.name || this.title] = {}
         rooms[targetRoomKey] = targetRoom
 
+        const didJoinTargetRoom = await this.ensureJoinedToTargetRoom(auth, targetRoomKey)
+
         const putResponse = await fetch(accountDataUrl, {
           method: 'PUT',
           headers: {
@@ -319,7 +367,9 @@ export default {
           throw new Error('Unable to save the pack to your Matrix account.')
         }
 
-        this.accountActionMessage = `Saved ${this.name || this.title} to your Matrix account.`
+        this.accountActionMessage = didJoinTargetRoom
+          ? `Saved ${this.name || this.title} to your Matrix account. We also joined you to the source room so your client can load the stickers.`
+          : `Saved ${this.name || this.title} to your Matrix account.`
       } catch (error) {
         this.accountActionError = true
         this.accountActionMessage = error.message || 'Unable to save the pack to your Matrix account.'
