@@ -37,15 +37,14 @@ const openMatrixModal = () => {
         </svg>
         <span>Your matrix client may not support animated sticker packs!</span>
       </div>
-      <button v-if="thumbnailExtension === 'webp'" class="btn btn-success w-full justify-start normal-case mt-4" :disabled="isSettingForAccount" @click="setPackForAccountDirectly">
+      <button class="btn btn-success w-full justify-start normal-case mt-4" :disabled="isSettingForAccount" @click="setPackForAccountDirectly">
         {{ isSettingForAccount ? 'Saving to your account…' : hasMatrixAccountSession ? 'Click to apply it to your account directly' : 'Login, to apply this pack directly to your account' }}
       </button>
       <p v-if="accountActionMessage" class="mt-2 text-sm" :class="accountActionError ? 'text-error' : 'text-success'">{{ accountActionMessage }}</p>
 
-      <div v-if="thumbnailExtension === 'webp'" class="divider"></div>
+      <div class="divider"></div>
 
-      <p v-if="thumbnailExtension === 'webp'" class="mt-4 mb-4">Or, add manually by using one if these approaches:</p>
-      <p v-else class="mt-4 mb-4">Use one if these approaches:</p>
+      <p class="mt-4 mb-4">Or, add manually by using one if these approaches:</p>
 
       <div class="flex flex-col gap-2">
         <button class="btn btn-primary w-full justify-start normal-case" v-on:click="isCinnyOpen = !isCinnyOpen">Use Cinny (by uploading Zip)
