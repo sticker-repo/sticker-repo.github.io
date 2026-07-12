@@ -225,7 +225,7 @@ export default {
       window.sessionStorage.setItem('matrixPendingSsoMainServer', mainServer)
       window.sessionStorage.setItem('matrixPendingSsoUser', matrixId)
 
-      const loginUrl = `${server}/_matrix/client/v3/login/sso/redirect?redirectUrl=${encodeURIComponent(redirectUrl)}`
+      const loginUrl = `${loginServer}/_matrix/client/v3/login/sso/redirect?redirectUrl=${encodeURIComponent(redirectUrl)}`
       window.location.assign(loginUrl)
     },
     async handleSsoCallback() {
