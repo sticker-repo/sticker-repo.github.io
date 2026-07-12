@@ -94,7 +94,8 @@ export default {
       loginError: '',
       isSubmitting: false,
       isHandlingSsoCallback: false,
-      pendingSsoServer: '',
+      pendingSsoLoginServer: '',
+      pendingSsoMainServer: '',
       pendingSsoUser: '',
       loginForm: {
         matrixId: '',
@@ -178,17 +179,17 @@ export default {
       const password = this.loginForm.password
 
       try {
-        const server = this.resolveLoginServer(matrixId)
-        if (!server) {
+        const [mainServer, loginServer] = this.resolveServer(matrixId)
+        if (!loginServer) {
           throw new Error('Please enter a valid Matrix ID such as user:matrix.org')
         }
 
         if (this.usesSsoLogin) {
-          await this.startSsoLogin(server, matrixId)
+          await this.startSsoLogin(mainServer, loginServer, matrixId)
           return
         }
 
-        const response = await fetch(`${server}/_matrix/client/v3/login`, {
+        const response = await fetch(`${loginServer}/_matrix/client/v3/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -207,7 +208,7 @@ export default {
           throw new Error(data.error || data.message || 'Login failed. Please check your credentials and homeserver.')
         }
 
-        this.persistSession(data.access_token, server, matrixId)
+        this.persistSession(data.access_token, mainServer, matrixId)
         this.closeLoginDialog()
       } catch (error) {
         this.loginError = error.message || 'Unable to sign in right now.'
@@ -215,11 +216,13 @@ export default {
         this.isSubmitting = false
       }
     },
-    async startSsoLogin(server, matrixId) {
+    async startSsoLogin(mainServer, loginServer, matrixId) {
       const redirectUrl = `${window.location.origin}${window.location.pathname}`
-      this.pendingSsoServer = server
+      this.pendingSsoLoginServer = loginServer
+      this.pendingSsoMainServer = mainServer
       this.pendingSsoUser = matrixId
-      window.sessionStorage.setItem('matrixPendingSsoServer', server)
+      window.sessionStorage.setItem('matrixPendingSsoLoginServer', loginServer)
+      window.sessionStorage.setItem('matrixPendingSsoMainServer', mainServer)
       window.sessionStorage.setItem('matrixPendingSsoUser', matrixId)
 
       const loginUrl = `${server}/_matrix/client/v3/login/sso/redirect?redirectUrl=${encodeURIComponent(redirectUrl)}`
@@ -235,15 +238,16 @@ export default {
 
       this.isHandlingSsoCallback = true
 
-      const pendingSsoServer = this.pendingSsoServer || window.sessionStorage.getItem('matrixPendingSsoServer') || ''
+      const pendingSsoLoginServer = this.pendingSsoLoginServer || window.sessionStorage.getItem('matrixPendingSsoLoginServer') || ''
+      const pendingSsoMainServer = this.pendingSsoMainServer || window.sessionStorage.getItem('matrixPendingSsoMainServer') || ''
       const pendingSsoUser = this.pendingSsoUser || window.sessionStorage.getItem('matrixPendingSsoUser') || ''
-      if (!pendingSsoServer) {
+      if (!pendingSsoLoginServer) {
         this.isHandlingSsoCallback = false
         return
       }
 
       try {
-        const response = await fetch(`${pendingSsoServer}/_matrix/client/v3/login`, {
+        const response = await fetch(`${pendingSsoLoginServer}/_matrix/client/v3/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -260,21 +264,23 @@ export default {
           throw new Error(data.error || data.message || 'Mozilla SSO login could not be completed.')
         }
 
-        this.persistSession(data.access_token, pendingSsoServer, pendingSsoUser)
+        this.persistSession(data.access_token, pendingSsoMainServer, pendingSsoUser)
         this.closeLoginDialog()
         const cleanUrl = window.location.origin + window.location.pathname
         window.history.replaceState({}, '', cleanUrl)
       } catch (error) {
         this.loginError = error.message || 'Mozilla Sso login could not be completed.'
       } finally {
-        this.pendingSsoServer = ''
+        this.pendingSsoLoginServer = ''
+        this.pendingSsoMainServer = ''
         this.pendingSsoUser = ''
         this.isHandlingSsoCallback = false
-        window.sessionStorage.removeItem('matrixPendingSsoServer')
+        window.sessionStorage.removeItem('matrixPendingSsoLoginServer')
+        window.sessionStorage.removeItem('matrixPendingSsoMainServer')
         window.sessionStorage.removeItem('matrixPendingSsoUser')
       }
     },
-    resolveLoginServer(matrixId) {
+    resolveServer(matrixId) {
       const match = matrixId.match(/^@?[^:]+:(.+)$/)
       if (!match) {
         return null
@@ -282,14 +288,14 @@ export default {
 
       const domain = match[1].toLowerCase()
       if (domain === 'matrix.org') {
-        return 'https://account.matrix.org'
+        return ['https://matrix.org', 'https://account.matrix.org']
       }
 
       if (['mozilla.org', 'mozilla.modular.im', 'modular.im'].includes(domain)) {
-        return 'https://mozilla.modular.im'
+        return ['https://mozilla.modular.im', 'https://mozilla.modular.im']
       }
 
-      return `https://${domain}`
+      return [`https://${domain}`, `https://${domain}`]
     },
     persistSession(token, server, user) {
       if (typeof window === 'undefined') {
@@ -317,7 +323,8 @@ export default {
       this.authServer = ''
       this.authUser = ''
       this.loginError = ''
-      this.pendingSsoServer = ''
+      this.pendingSsoLoginServer = ''
+      this.pendingSsoMainServer = ''
       this.pendingSsoUser = ''
     },
     async logout() {
