@@ -56,12 +56,9 @@ const openMatrixModal = () => {
         <div v-if="isCinnyOpen" class="card card-border bg-base-300">
           <div class="card-body">
             <ol class="list-decimal list-inside space-y-2 ml-2">
-              <li class="flex flex-wrap items-center justify-between gap-2">
-                <span>Download and unzip pack files.</span>
-                <button class="btn btn-xs btn-accent normal-case" :disabled="isDownloadingPack" @click="() => downloadPackZip(false)">
+              <li>Download and unzip pack files. <button class="btn btn-xs btn-accent normal-case" :disabled="isDownloadingPack" @click="() => downloadPackZip(false)">
                   {{ isDownloadingPack ? 'Preparing…' : 'Download Zip' }}
-                </button>
-              </li>
+                </button></li>
               <li>Open your space/room in Cinny and go to <code class="bg-base-200 px-2 py-1 rounded text-sm">Space/room Settings</code>.</li>
               <li>Open <code class="bg-base-200 px-2 py-1 rounded text-sm">Emojis & Stickers</code>.</li>
               <li>Create a <code class="bg-base-200 px-2 py-1 rounded text-sm">New pack</code> and Upload all the unzip stickers in bulk.</li>
@@ -154,6 +151,7 @@ Event Content:
         <div v-if="isFluffyChatOpen" class="card card-border bg-base-300">
           <div class="card-body">
           <ol class="list-decimal list-inside space-y-2 ml-2">
+            <li>Add the pack to a room with one of the other approaches.</li>
             <li>Open <code class="bg-base-200 px-2 py-1 rounded text-sm">FluffyChat</code> and go to the room with sticker packs you want to add.</li>
             <li>Tap on the three dot menu top right and tap on <code class="bg-base-200 px-2 py-1 rounded text-sm">Emote Settings</code>.</li>
             <li>Select the sticker pack.</li>
