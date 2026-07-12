@@ -237,52 +237,78 @@ export default {
     openLoginDialog() {
       window.dispatchEvent(new CustomEvent('open-matrix-login'))
     },
-    async ensureJoinedToTargetRoom(auth, targetRoomKeys) {
-      const joinedRoomsUrl = `${auth.server}/_matrix/client/v3/joined_rooms`
-      const joinedResponse = await fetch(joinedRoomsUrl, {
-        headers: {
-          Authorization: `Bearer ${auth.token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!joinedResponse.ok) {
-        throw new Error('Unable to check your Matrix room membership.')
-      }
-
-      const joinedData = await joinedResponse.json().catch(() => ({}))
-      const joinedRooms = Array.isArray(joinedData.joined_rooms) ? joinedData.joined_rooms : []
-
-      if (targetRoomKeys.some((roomKey) => joinedRooms.includes(roomKey))) {
-        return false
-      }
-
-      const targetAlias = '#sticker-repo-webp:matrix.org'
-      const joinResponse = await fetch(`${auth.server}/_matrix/client/v3/rooms/${encodeURIComponent(targetAlias)}/join`, {
+    async ensureJoinedToTargetRoom(auth) {
+      const searchRoomsUrl = `${auth.server}/_matrix/client/v3/search`
+      const searchResponse = await fetch(searchRoomsUrl, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${auth.token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          search_categories: {
+              room_events: {
+                search_term: '#sticker-repo',
+                keys: ['content.topic'],
+                filter: {
+                  types: ['m.room.topic']
+                },
+                order_by: 'recent',
+                include_state: true
+              }
+            }
+        })
       })
 
-      if (!joinResponse.ok) {
-        let errorBody = {}
-        try {
-          errorBody = await joinResponse.json()
-        } catch {
-          // Ignore invalid JSON payloads and fall back to the general error.
-        }
-
-        if (joinResponse.status === 403 && errorBody.errcode === 'M_FORBIDDEN') {
-          throw new Error('You do not have permission to join the source room.')
-        }
-
-        throw new Error('Unable to join the source room.')
+      if (!searchResponse.ok) {
+        throw new Error('Unable to check your Matrix room membership.')
       }
 
-      return true
+      const searchData = await searchResponse.json().catch(() => ({}))
+      let roomId = searchData?.search_categories?.room_events?.results[0]?.result?.room_id;
+
+      if (roomId) {
+        return roomId
+      }
+
+      const createRoomResponse = await fetch(`${auth.server}/_matrix/client/v3/createRoom`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: "sticker-repo [private]",
+          topic: "Source room for your sticker packs, by #sticker-repo.",
+          visibility: "private"
+        })
+      })
+
+      if (!createRoomResponse.ok) {
+        throw new Error('Unable to create the source room.')
+      }
+      const createRoomData = await createRoomResponse.json().catch(() => ({}))
+      roomId = createRoomData?.room_id;
+      if (roomId) {
+        return roomId
+      }
+
+      throw new Error('Unable get room id.')
+    },
+    async setStickerInRoom(auth, roomId) {
+      const roomStateUrl = `${auth.server}/_matrix/client/v3/rooms/${roomId}/state/im.ponies.room_emotes/${this.name}`
+      const setRoomStateResponse = await fetch(roomStateUrl, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: this.matrixEvent
+      })
+
+      if (!setRoomStateResponse.ok) {
+        throw new Error('Unable to check your Matrix room membership.')
+      }
     },
     getMatrixAuthSession() {
       if (typeof window === 'undefined') {
@@ -318,6 +344,9 @@ export default {
       this.isSettingForAccount = true
 
       try {
+        const targetRoomKey = await this.ensureJoinedToTargetRoom(auth)
+        await this.setStickerInRoom(auth, targetRoomKey)
+
         const accountDataUrl = `${auth.server}/_matrix/client/v3/user/${encodeURIComponent(auth.user)}/account_data/im.ponies.emote_rooms`
         const response = await fetch(accountDataUrl, {
           headers: {
@@ -345,12 +374,9 @@ export default {
         }
 
         const rooms = currentData.rooms && typeof currentData.rooms === 'object' ? { ...currentData.rooms } : {}
-        const targetRoomKey = '!jxPZTvymkSnkmMlfQx:matrix.org'
         const targetRoom = rooms[targetRoomKey] && typeof rooms[targetRoomKey] === 'object' ? { ...rooms[targetRoomKey] } : {}
         targetRoom[this.name || this.title] = {}
         rooms[targetRoomKey] = targetRoom
-
-        const didJoinTargetRoom = await this.ensureJoinedToTargetRoom(auth, [targetRoomKey, '#sticker-repo-webp:matrix.org'])
 
         const putResponse = await fetch(accountDataUrl, {
           method: 'PUT',
@@ -368,9 +394,7 @@ export default {
           throw new Error('Unable to save the pack to your Matrix account.')
         }
 
-        this.accountActionMessage = didJoinTargetRoom
-          ? `Saved ${this.name || this.title} to your Matrix account. We also joined you to the source room so your client can load the stickers.`
-          : `Saved ${this.name || this.title} to your Matrix account.`
+        this.accountActionMessage = `Saved '${this.name || this.title}' to your Matrix account.`
       } catch (error) {
         this.accountActionError = true
         this.accountActionMessage = error.message || 'Unable to save the pack to your Matrix account.'

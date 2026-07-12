@@ -197,6 +197,7 @@ export default {
             type: 'm.login.password',
             user: username,
             password,
+            initial_device_display_name: window.location.hostname,
           }),
         })
 
@@ -250,6 +251,7 @@ export default {
           body: JSON.stringify({
             type: 'm.login.token',
             token: loginToken,
+            initial_device_display_name: window.location.hostname,
           }),
         })
 
@@ -271,7 +273,7 @@ export default {
         window.sessionStorage.removeItem('matrixPendingSsoServer')
         window.sessionStorage.removeItem('matrixPendingSsoUser')
       }
-    }, 
+    },
     resolveLoginServer(matrixId) {
       const match = matrixId.match(/^@?[^:]+:(.+)$/)
       if (!match) {
@@ -314,9 +316,9 @@ export default {
       this.authToken = ''
       this.authServer = ''
       this.authUser = ''
-      this.loginError = ''      
+      this.loginError = ''
       this.pendingSsoServer = ''
-      this.pendingSsoUser = ''    
+      this.pendingSsoUser = ''
     },
     async logout() {
       if (this.authToken && this.authServer) {
