@@ -56,7 +56,7 @@
           Mozilla SSO is enabled for this Matrix ID. The password field is disabled and the form will continue through Mozilla sign-in.
         </p>
         <p v-if="loginError" class="text-sm text-error">{{ loginError }}</p>
-        <p class="py-2 text-sm">Privacy note: The login is client-side and your login credentials do not leave your browser. If you want, you can also <a href="https://github.com/sticker-repo/matrix-homeserver" class="link">self-host this website!</a></p>
+        <p class="py-2 text-sm">Privacy note: The login is client-side, so your credentials never leave the browser. If you want, you can also <a href="https://github.com/sticker-repo/matrix-homeserver" class="link">self-host this website!</a></p>
         <div class="modal-action">
           <button type="button" class="btn btn-ghost" @click="closeLoginDialog">Cancel</button>
           <button type="submit" class="btn btn-primary" :class="{ loading: isSubmitting }">
