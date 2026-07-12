@@ -56,7 +56,12 @@ const openMatrixModal = () => {
         <div v-if="isCinnyOpen" class="card card-border bg-base-300">
           <div class="card-body">
             <ol class="list-decimal list-inside space-y-2 ml-2">
-              <li>Download and unzip pack files.</li>
+              <li class="flex flex-wrap items-center justify-between gap-2">
+                <span>Download and unzip pack files.</span>
+                <button class="btn btn-xs btn-accent normal-case" :disabled="isDownloadingPack" @click="() => downloadPackZip(false)">
+                  {{ isDownloadingPack ? 'Preparing…' : 'Download Zip' }}
+                </button>
+              </li>
               <li>Open your space/room in Cinny and go to <code class="bg-base-200 px-2 py-1 rounded text-sm">Space/room Settings</code>.</li>
               <li>Open <code class="bg-base-200 px-2 py-1 rounded text-sm">Emojis & Stickers</code>.</li>
               <li>Create a <code class="bg-base-200 px-2 py-1 rounded text-sm">New pack</code> and Upload all the unzip stickers in bulk.</li>
@@ -164,7 +169,7 @@ Event Content:
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </a>
-        <button class="btn btn-accent w-full justify-start normal-case" :disabled="isDownloadingPack" @click="downloadPackZip">{{ isDownloadingPack ? 'Preparing Zip…' : 'Or, Download as Zip' }}</button>
+        <button class="btn btn-accent w-full justify-start normal-case" :disabled="isDownloadingPack" @click="() => downloadPackZip(true)">{{ isDownloadingPack ? 'Preparing Zip…' : 'Or, Download as Zip' }}</button>
       </div>
     </div>
     <form method="dialog" class="modal-backdrop">
@@ -402,7 +407,7 @@ export default {
         this.isSettingForAccount = false
       }
     },
-    async downloadPackZip() {
+    async downloadPackZip(closeOnFinish) {
       const cards = [...this.stickers, {
         id: 'thumbnail',
         src: `/s1/files/${this.$route.params.packName}/thumbnail.${this.thumbnailExtension}`,
@@ -444,7 +449,9 @@ export default {
         downloadLink.click()
         downloadLink.remove()
         URL.revokeObjectURL(downloadUrl)
-        this.$refs.matrixModalRef?.close()
+        if (closeOnFinish) {
+          this.$refs.matrixModalRef?.close()
+        }
       } catch (error) {
         console.error('Failed to download sticker pack zip', error)
       } finally {
