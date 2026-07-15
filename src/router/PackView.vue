@@ -194,7 +194,7 @@ function extToMimetype(ext) {
     case 'gif':
       return 'image/gif'
     case 'tgs':
-      return 'video/tgs'
+      return 'image/tgs'
     default:
       return undefined
   }

@@ -43,7 +43,7 @@ async function getFileBytes(mediaId) {
       contentType = "image/gif";
       break;
     case "tgs":
-      contentType = "video/tgs";
+      contentType = "image/tgs";
       break;
     default:
       contentType = res.headers.get("content-type") || "application/octet-stream";

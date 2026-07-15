@@ -65,14 +65,14 @@ m.room.message
       "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/animtgs",
       "body": "tgs",
       "info": {
-        "mimetype": "video/tgs"
+        "mimetype": "image/tgs"
       }
     },
     "dottgs": {
       "url": "mxc://sticker-repo.pasha-parfeni.workers.dev/anim.tgs",
       "body": "dottgs",
       "info": {
-        "mimetype": "video/tgs"
+        "mimetype": "image/tgs"
       }
     },
     "webm": {
