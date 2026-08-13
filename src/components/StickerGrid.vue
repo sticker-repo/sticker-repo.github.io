@@ -48,7 +48,7 @@ export default {
     },
     onClick(card) {
       if (card.route) {
-        this.$router.push(card.route)
+        window.location.href = card.route
       }
     },
     playCard(evt) {

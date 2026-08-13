@@ -23,7 +23,7 @@
       </template>
     </div>
     <div class="flex-none">
-      <a v-if="$route.path === '/'" class="btn btn-secondary capitalize" @click="$router.push('/search')">search with emoji</a>
+      <a v-if="$route.path === '/'" class="btn btn-secondary capitalize" @click="goToSearch">search with emoji</a>
       <a v-else @click="$router.back()" class="btn btn-outline capitalize">back</a>
       <button type="button" class="btn btn-outline capitalize ml-2 mr-2" @click="handleAuthButtonClick">
         {{ isAuthenticated ? 'logout' : isHandlingSsoCallback ? 'finishing login…' : 'login' }}
@@ -158,6 +158,9 @@ export default {
       this.$nextTick(() => {
         this.$refs.loginDialog?.showModal()
       })
+    },
+    goToSearch() {
+      window.location.href = '/search'
     },
     handleAuthButtonClick() {
       if (this.isAuthenticated) {

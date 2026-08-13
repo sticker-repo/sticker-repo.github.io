@@ -37,10 +37,7 @@ Uncomment this section in `vite.config.js`:
   // for dev server
   // server: {
   //   proxy: {
-  //     '^/(?!search|pack|@|src|$)': {
-  //       target: 'https://sticker-repo.github.io',
-  //       changeOrigin: true,
-  //     }
+  //     ...
   //   }
   // },
 ```

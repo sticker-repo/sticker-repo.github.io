@@ -20,7 +20,7 @@ export default defineConfig({
   // for dev server
   // server: {
   //   proxy: {
-  //     '^/(?!search|pack|@|src|$|\\?.*)': {
+  //     '/s1': {
   //       target: 'https://sticker-repo.github.io',
   //       changeOrigin: true,
   //     }

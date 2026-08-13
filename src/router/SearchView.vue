@@ -11,7 +11,7 @@ import * as unicodeEmoji from 'unicode-emoji';
       class="btn btn-ghost text-2xl"
       v-for="emoji in emojis"
       :key="emoji"
-      v-on:click="$router.push(`/search/${emoji}`)"
+      @click="goToSearch(emoji)"
     >
       {{ emoji }}
     </button>
@@ -55,6 +55,10 @@ export default {
       this.emojis = emojis;
     })
   },
-  methods: {},
+  methods: {
+    goToSearch(emoji) {
+      window.location.href = `/search/${encodeURIComponent(emoji)}`
+    }
+  },
 }
 </script>
